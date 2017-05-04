@@ -1,0 +1,323 @@
+.enemyInfo{
+	position: absolute;
+	width:483px;
+	height:220px;
+	left:0px;
+	top:0px;
+	font-family: "Verdana";
+	font-size:14px;
+	box-shadow: 1px 1px 10px black;
+	z-index:2;
+}
+
+.enemyInfo:hover{
+	z-index:3 !important;
+}
+
+.enemyBarButton{
+	position:absolute;
+	width:16px;
+	height:16px;
+	top:2px;
+}
+
+.enemyBar{
+	left:0px;
+	top:-20px;
+	height:20px;
+	width:483px;
+}
+
+.enemyBar:hover{
+	cursor: move;
+}
+
+.enemyStatLabel{
+	position: absolute;
+	font-size:10px;
+	margin-left:8px;
+	margin-top:4px;
+}
+
+.enemyExpLabel{
+	position: absolute;
+	font-size:12px;
+	margin-left:290px;
+	margin-top:149px;
+	color:white;
+}
+
+.enemyExpNum{
+	position: absolute;
+	font-size:12px;
+	margin-left:329px;
+	margin-top:149px;
+	color:white;
+}
+
+.enemyTerrainLabel{
+	position: absolute;
+	font-size:10px;
+	margin-left:8px;
+	margin-top:3px;
+	color: white;
+}
+
+.enemyBattleLabel{
+	position: absolute;
+	font-size:10px;
+	margin-left:15px;
+	margin-top:4px;
+}
+
+.enemyStatusPopLabel{
+	position: absolute;
+	font-size:10px;
+	margin-left:7px;
+	margin-top:4px;
+}
+
+.indentedEnemyStat{
+	position: absolute;
+	margin-left:54px;
+	margin-top:1px;
+}
+
+.indentedEnemyHPStat{
+	margin-right:8px;
+	margin-top:1px;
+	display:block;
+	text-align: right;
+}
+
+.indentedBattleStat{
+	position: absolute;
+	margin-left:50px;
+	margin-top:1px;
+}
+
+.indentedExp{
+	position: absolute;
+	margin-left:53px;
+	margin-top:1px;
+}
+
+.indentedGold{
+	position: absolute;
+	font-size:11px;
+	margin-left:30px;
+	margin-top:3px;
+}
+
+.indentedStatus{
+	position: absolute;
+	margin-left:86px;
+	margin-top:1px;
+}
+
+.indentedEnemyItem{
+	position:absolute;
+	margin-left:31px;
+	margin-top:3px;
+}
+
+.enemyWeaponEffectIcons{
+	position: absolute;
+	margin-left:98px;
+	margin-top:3px;
+	width:90px;
+	display:inline-block;
+	text-align:right;
+}
+
+.indentedEWeaponIcon{
+	position:absolute;
+	margin-left:10px;
+	margin-top:4px;
+}
+
+.indentedEWeaknessIcon{
+	position:absolute;
+}
+
+.indentedEnemySkill{
+	position:absolute;
+	margin-left:10px;
+	margin-top:3px;
+	font-size:12px;
+}
+
+.levelSize{
+	font-size:11px;
+}
+
+.enemyNum{
+	position: absolute;
+	left:0px;
+	top:-3px;
+}
+
+.enemyTalkBalloon{
+	position: absolute;
+	top: -16px;
+	left: 0px;
+	z-index:1;
+}
+
+.enemyNamePos{
+	width:140px;
+	height:38px;
+	margin-left:5px;
+	margin-top:5px;
+}
+
+.enemyBattlePos{
+	width:185px;
+	height:42px;
+	margin-left:5px;
+	margin-top:48px;
+}
+
+.enemyMovPos{
+	margin-top:197px;
+	height:19px;
+}
+
+.enemyExpPos{
+	margin-left:270px;
+	width:89px;
+	margin-top:149px;
+	height:19px;
+}
+
+.enemyGoldPos{
+	margin-left:280px;
+	width:79px;
+	margin-top:173px;
+	height:19px;
+}
+
+.enemyStatusPos{
+	margin-left:365px;
+	width:110px;
+	margin-top:173px;
+	height:19px;
+}
+
+.enemyTerrainPos{
+	margin-left:365px;
+	width:110px;
+	margin-top:197px;
+	height:19px;
+}
+
+
+.enemyShieldsPos{
+	margin-left:5px;
+	margin-top:120px;
+	width:185px;
+	height:19px;
+}
+
+.enemyGemPos{
+	margin-left:5px;
+	width:185px;
+	height:20px;
+}
+
+.enemySkillGemInfoPos{
+	margin-left:195px;
+	width:283px;
+	height:120px;
+}
+
+.enemyBlurbPos{
+	margin-left:150px;
+	width:328px;
+	height:211px;
+}
+
+.enemyStatusPopPos{
+	margin-left:159px;
+	width:200px;
+	height:95px;
+}
+
+.enemyTerrainPopPos{
+	margin-left:159px;
+	width:200px;
+	height:95px;
+}
+
+.enemyGoldPopPos{
+	margin-left:100px;
+	width:176px;
+	height:82px;
+}
+
+.enemyStatPos{
+	margin-left:195px;
+	width:80px;
+	height:19px;
+}
+
+.enemyInventoryBoxPos{
+	margin-left:280px;
+	width:198px;
+	height:24px;
+}
+
+.enemyInventoryInfoPos{
+	font-size:12px;
+	margin-left:35px;
+	width:240px;
+	height:145px;
+}
+
+.enemyWeaponRankPos{
+	margin-top:149px;
+	height:24px;
+	width:67px;
+}
+
+
+.eStatInfoPos{
+	width:150px;
+	margin-left:280px;
+	height:75px;
+}
+
+.itemNamePos{
+	font-size: 14px !important;
+	top: 4px;
+}
+
+.itemRankPos{
+	top: 5px;
+	right: 0px;
+	text-align: right;
+}
+
+.itemMightPos{
+	top:25px;
+}
+
+.itemWeightPos{
+	top:40px;
+}
+
+.itemEffectPos{
+	top:60px;
+}
+
+.itemNotesPos{
+	top:95px;
+}
+
+.customDivider{
+	position:absolute;
+	width:96%;
+	height:1px;
+	left:2%;
+	background-color: white;	
+}

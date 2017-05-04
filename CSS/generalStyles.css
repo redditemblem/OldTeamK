@@ -1,0 +1,314 @@
+.buttonMusicStyle{
+	position: absolute;
+	width: 145px; 
+	top: 595px;
+	left: 3px;
+	height: 32px;
+	
+ 	border: 0px;
+ 	box-shadow: none;
+ 	background-color: #fafafa;
+ 	color: #505050;
+ 	font-family: "Verdana";
+	font-size:10px;
+	text-align: left;
+}
+
+.fog{
+   position: absolute;
+   left: 0px;
+   top: 0px;
+   background-image: url("../IMG/fog.png");
+   width: 512px;
+   height: 512px;
+   background-repeat: repeat;
+   background-size: 25%;
+   background-position: 0% 0%;
+   opacity: .3;
+   /* Apply animation to this element */
+   -moz-animation: scroll-diagonal 10s linear infinite;
+   -webkit-animation: scroll-diagonal 10s linear infinite;
+   animation: scroll-diagonal 30s linear infinite;
+}
+
+@-moz-keyframes scroll-diagonal {
+ 0%   { background-position: 0% 0%; }
+ 100%  { background-position: 100% 100%; }
+}
+@-webkit-keyframes scroll-up {
+ 0%   { background-position: 0% 0%; }
+ 100%  { background-position: 100% 100%; }
+}
+@keyframes scroll-diagonal {
+ 0%   { background-position: 0% 0%; }
+ 100%  { background-position: 100% 100%; }
+}
+
+audio { 
+	position: absolute;
+	display: block; 
+	width: 292px;
+	margin:0px; 
+	color: #808080!important;
+	top: 595px;
+	left: 148px;
+	
+}
+
+.buttonGridStyle{
+	position: absolute;
+	width: 69px; 
+	top: 595px;
+	left: 440px;
+	height: 32px;
+	
+ 	border: 0px;
+ 	box-shadow: none;
+ 	background-color: #fafafa;
+ 	color: #505050;
+ 	font-family: "Verdana";
+	font-size:10px;
+}
+
+.buttonHover:hover{
+	background-color: #c0c0c0;
+}
+
+.mainBackground{
+	position:absolute;
+	background-image: url("../IMG/background.png");
+    background-repeat: repeat;
+    background-size: 25%;
+	height:100%;
+	width:100%;
+	top:0px;
+	left:0px;
+}
+
+body{
+	height:100%;
+	width:100%;
+}
+
+img{
+  image-rendering: optimizeSpeed;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: -o-crisp-edges;
+  image-rendering: pixelated;
+  -ms-interpolation-mode: nearest-neighbor;
+}
+
+.grayscale{
+	-webkit-filter: grayscale(100%); /* Safari 6.0 - 9.0 */
+    filter: grayscale(100%);
+}
+
+.mapBox{
+	position:absolute;
+	top:0px;
+	left:0px;
+	height:100%;
+	width:100%;
+}
+
+.charDiv{
+	position: absolute;
+	height:16px;
+	width:16px;
+}
+
+.hoverImage:hover{
+	cursor: pointer;
+	filter: brightness(160%);
+}
+
+.dimImage{
+	filter: brightness(60%);
+}
+
+.hoverBrown:hover{
+	background-color: #808080!important;
+}
+
+.hoverBlack:hover{
+	background-color: #757575!important;
+}
+
+.hoverTan:hover{
+	background-color: #e1e1e1!important;
+}
+
+.hoverStatus:hover{
+	background-color: #969696!important;
+}
+
+.healthBarBack{
+	position: absolute;
+	width: 15px;
+	height: 2px;
+	left: 0px;
+	top: 13px;
+	background-color: dimgray;
+}
+
+.healthBarFront{
+	position: absolute;
+	height: 2px;
+	left: 1px;
+	top: 13px;
+	background-color: #00ff00;
+}
+
+.healthBarBorder{
+	position: absolute;
+	width: 14px;
+	height: 1px;
+	left: 0px;
+	top: 13px;
+	border: 1px solid black;
+}
+
+
+
+.infoElement{
+	position: absolute;
+	border-radius: 10px;
+}
+
+.rightIndented{
+	position: absolute;
+	margin-top:5px;
+}
+
+.popOutHeader{
+	margin-top:5px;
+}
+
+.popOutBlurb{
+	margin-top:-5px;
+}
+
+.popOutBody{
+	margin-top:25px;
+}
+
+.popOutText{
+	font-size:12px;
+	position: absolute;
+	margin-left:5px;
+	margin-right:5px;
+}
+
+.popOutLevel{
+	font-size:11px;
+	position: absolute;
+	margin-left:5px;
+	margin-right:5px;
+}
+
+.enemyLvlClass{
+	font-size:12px;
+	position: absolute;
+	top: 5px;
+	right:5px;
+}
+
+.popOutTextSpacing{
+	margin-top:5px;
+}
+
+.glowBox{
+	position:absolute;
+	height:16px;
+	width:16px;
+	display:inline-block;
+}
+
+.glowBoxBorderBox{
+	position:absolute;
+	margin: auto;
+	left:0;
+	right:0;
+	bottom:0;
+	top:0;
+	height:15px;
+	width:15px;
+}
+
+.glowBoxBorder0{
+	border: 0px solid rgba(0, 0, 0, .08);
+}
+
+.glowBoxBorder1{
+	border: 1px solid rgba(0, 0, 0, .08);
+}
+
+.glowBoxBorder2{
+	border: 1px solid rgba(0, 0, 0, .2);
+}
+
+.glowBoxBorder3{
+	border: 1px solid rgba(0, 0, 0, .4);
+}
+
+.glowBox:hover{
+	box-shadow: 0px 0px 10px #00ffff;
+	z-index:1 
+}
+
+.glowBoxIndent{
+	margin-left:0px;
+}
+
+.absolutePos{
+	position:absolute;
+}
+
+.mapCharCentered{
+	
+	position: absolute;
+	left: 0;
+	bottom: 0;  
+}
+
+.mapCharOffsetLeft{
+	position:absolute;
+	left:-6px;
+	top:-3px;
+}
+
+.mapCharOffsetRight{
+	position:absolute;
+	left:6px;
+	top:3px;
+}
+
+.mapCharOffsetNone{
+	position:absolute;
+	left:0px;
+	top:0px;
+}
+
+.floatAbove{
+	z-index:3;
+}
+
+.centerText{ text-align: center; }
+.rightText{ text-align: right; }
+.whiteText{ color: white; }
+.blackText{ color: #000000; }
+.redText{ color: #464646; }
+.tanText{ color: #ffffff; }
+.boldText{ font-weight: bold; }
+.italicText{ font-style: italic; }
+
+.navy{ background-color: #808080; }
+.paleTan{ background-color: #c0c0c0; }
+.lightTan{ background-color: #c0c0c0; }
+.darkTan{ background-color: #808080; }
+.darkerTan{ background-color: #646464; }
+.olive{ background-color: #808080; }
+.lightGreen{ background-color: #39af2b; }
+.green{ background-color: #454545; opacity: 0.95;}
+.blackBorder{ border: 1px solid black; }
