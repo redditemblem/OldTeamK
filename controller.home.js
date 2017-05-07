@@ -12,14 +12,15 @@ app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'DataService', f
     
     //Reroutes the user if they haven't logged into the app
     //Loads data from the DataService if they have
-    if(DataService.getEnemies() == null)
+	$location.path('/');
+    /*if(DataService.getEnemies() == null)
     	$location.path('/');
     else{
     	//$scope.charaData = DataService.getCharacters();
-    	$scope.enemyData = DataService.getEnemies();
+    	//$scope.enemyData = DataService.getEnemies();
     	$scope.map = DataService.getMap();
     	$scope.terrainData = DataService.getTerrain();
-    }
+    }*/
     
     $scope.toggleGrid = function() {
     	if($scope.showGrid == 3){

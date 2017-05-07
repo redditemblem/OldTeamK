@@ -22,12 +22,12 @@ app.controller('AuthCtrl', ['$scope', '$location', '$interval', 'DataService', f
     }
 
     //Initiate auth flow in response to user clicking authorize button.
-    $scope.loadAPI = function(event) {
+    $scope.loadAPI = function(event, type) {
     	gapi.client.init({
     		'apiKey': id, 
     		'discoveryDocs': ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
     	}).then(function(){
-			fetchMapURL();
+			fetchMapURL(type);
     	});
     };
 
