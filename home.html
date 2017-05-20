@@ -1,10 +1,8 @@
 <div id="dropArea" class="mapBox mainBackground">
 
-	<img id="map" class="absolutePos" ng-src="{{map}}">
+	<img id="map" class="absolutePos" ng-src="{{mapUrl}}">
 	
 	<div class="fog"></div>
-	
-	
 	
 	<!--Draw tile names-->
 	<div ng-repeat="(yIndex,row) in rows" class="glowBoxIndent absolutePos" ng-style="{top: determineGlowY(yIndex)}">
@@ -13,51 +11,46 @@
 		</div>
 	</div>
 	
-	<img class="absolutePos" ng-src="{{getTimeOut()}}" style="top:512px">
+	<img class="absolutePos" ng-src="IMG/time_out.png" style="top:512px">
 	
-	<audio id = 'audio' controls loop>
+	<audio id="audio" controls loop>
 		<source ng-if="musicTrack==0" src="MUS/themeJungle.mp3" type="audio/mpeg">
 		<source ng-if="musicTrack==1" src="MUS/themeBattle.mp3" type="audio/mpeg">
   		<source ng-if="musicTrack==2" src="MUS/themeMain.mp3" type="audio/mpeg">
-  		
-  		
 		Your browser does not support the audio element.
 	</audio>
 	 
 	<button class="buttonMusicStyle buttonHover" ng-click="toggleMusic()">
-	<div ng-if="musicTrack==0">Jungle Theme: Between Those of Light and Dark</div>
-	<div ng-if="musicTrack==1">Battle Theme: Break Through Adversity</div>
-	<div ng-if="musicTrack==2">Main Theme: Those Who Would End The World</div>
-	 
-	 
-	 
-	 <div ng-if="musicTrack==3">???</div>
+		<div ng-if="musicTrack==0">Jungle Theme: Between Those of Light and Dark</div>
+		<div ng-if="musicTrack==1">Battle Theme: Break Through Adversity</div>
+		<div ng-if="musicTrack==2">Main Theme: Those Who Would End The World</div>
+		<div ng-if="musicTrack==3">???</div>
 	</button>
 	
 	<button class="buttonGridStyle buttonHover" ng-click="toggleGrid()">
-	 Grid Style: 
-	 <div ng-if="showGrid==0">None</div>
-	 <div ng-if="showGrid==1">Thin</div>
-	 <div ng-if="showGrid==2">Medium</div>
-	 <div ng-if="showGrid==3">Thick</div>
+		Grid Style: 
+		<div ng-if="showGrid==0">None</div>
+		<div ng-if="showGrid==1">Thin</div>
+		<div ng-if="showGrid==2">Medium</div>
+		<div ng-if="showGrid==3">Thick</div>
 	</button>
 	
-	<!--Draw enemies-->
-	
-	<div ng-repeat="enemy in enemyData">
-		<div ng-if="enemyHasPos($index)" class="hoverImage charDiv" title="({{enemy[32]}}) {{enemy[33][0]}}: {{enemy[33][1]}}🚶  {{enemy[33][2]}}⛨" ng-click="toggleView($index)" ng-style="{top: determineY($index), left: determineX($index)}" id="enemy_{{$index}}">
+	<!--Draw character sprites to map-->
+	<div ng-repeat="(cIndex,char) in charaData">
+		<div id="{{cIndex}}" ng-if="validPosition(char.position)" class="hoverImage charDiv" title="({{char.position}}) terrain: mov🚶  shield⛨" ng-click="displayData(cIndex)" ng-style="{top: determineCharY(char.position), left: determineCharX(char.position)}">
 			<div class="charDiv" class="mapCharOffsetNone">
-				<img ng-if="enemyHasMoved($index)" ng-src="{{enemy[44]}}" class="mapCharCentered grayscale">
-				<img ng-if="!enemyHasMoved($index)" ng-src="{{enemy[44]}}" class="mapCharCentered" >
-				<img ng-if="enemyHasNum($index) && enemyHpDraw($index)" ng-src="{{getEnemyNum($index)}}" class="enemyNum">
-				<img ng-if="enemyHasNum($index) && !enemyHpDraw($index)" ng-src="{{getEnemyNum($index)}}" class="enemyNum" style="top:0px">
-				<img ng-if="enemyHasStatus($index)" ng-src="{{getEnemyStatus($index)}}" class="enemyNum">
+				<img ng-src="{{char.spriteUrl}}" class="mapCharCentered" ng-class="{'grayscale' : hasMoved(char.moved)}">
+				<img ng-src="{{getEnemyNum(char.name)}}" class="enemyNum"> <!--style="top:0px"-->
+				<img ng-src="{{getStatus(char.status.name, char.turnsLeft)}}" class="enemyNum">
 			</div>
-			<div ng-if="enemyHpDraw($index)" class="healthBarBack"></div>
-			<div ng-if="enemyHpDraw($index)" class="healthBarFront" ng-style="{width:(1+(enemy[5]/enemy[4])*12)+'px','background-color': determineHPColor($index)}"></div>
-			<div ng-if="enemyHpDraw($index)" class="healthBarBorder"></div>
-			<div ng-if="enemyIsPaired($index) && enemyHpDraw($index)" class="pairUpIcon"><img src="IMG/shield_pairup.png"></div>
-			<div ng-if="enemyIsPaired($index) && !enemyHpDraw($index)" class="pairUpIcon"><img src="IMG/shield_pairup.png" class="enemyNum" style="top:3px"></div>
+			<div ng-if="validHP(char.currHp, char.maxHp)">
+				<div class="healthBarBack"></div>
+				<div class="healthBarFront" ng-style="{width:(1+(enemy[5]/enemy[4])*12)+'px','background-color': determineHPColor($index)}"></div>
+				<div class="healthBarBorder"></div>
+			</div>
+			<!--<div id= class="pairUpIcon">
+				<img src="IMG/shield_pairup.png">
+			</div>-->
 		</div>
 	</div>
 

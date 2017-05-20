@@ -1,50 +1,63 @@
 app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'DataService', function ($scope, $location, $interval, DataService) {
+	var onLoad = checkData();
 	$scope.rows = ["1"];
     $scope.columns = ["1"];
-    $scope.showGrid = 1;
-    $scope.musicTrack = 0;
-    $scope.numSongs = 3;
-    var numDefeat = 0;
+	$scope.statsList = [
+	                ["Str", "Strength. Affects damage the unit deals with physical attacks.",    "215px", "200px"],
+	                ["Mag", "Magic. Affects damage the unit deals with magical attacks.",        "240px", "200px"],
+	                ["Skl", "Skill. Affects hit rate and the frequency of critical hits.",       "265px", "200px"],
+	                ["Spd", "Speed. Affects Avo. Unit strikes twice if 5 higher than opponent.", "290px", "200px"],
+	                ["Lck", "Luck. Has various effects. Lowers risk of enemy criticals.",        "215px", "315px"],
+	                ["Def", "Defense. Reduces damage from physical attacks.",                    "240px", "315px"],
+	                ["Res", "Resistance. Reduces damage from physical attacks.",                 "265px", "315px"],
+					["Mov", "Movement. Affects how many blocks a unit can move in a turn.",      "290px", "315px"],
+					["Con", "Constitution. Affects how much weight a unit can carry.", 			 "100px", "315px"]
+	               ];
+	
+	//Interval timers
     var rowTimer = $interval(calcNumRows, 250, 20); //attempt to get rows 20 times at 250 ms intervals (total run: 5 sec)
     var colTimer = $interval(calcNumColumns, 250, 20);
     var dragNDrop = $interval(initializeListeners, 250, 20);
     
+	//Map and music variables
+	$scope.showGrid = 1;
+    $scope.musicTrack = 0;
+	const numSongs = 3;
+    var numDefeat = 0;
+
+    //Positioning constants
+    const statVerticalPos = ["10px", "39px", "68px", "97px", "126px", "155px", "184px"];
+    const weaponVerticalPos = ["10px", "45px", "80px", "115px", "150px"];
+    const weaponRankHorzPos = ["15px", "85px", "155px"];
+    const weaponDescVerticalPos = ["10px", "35px", "60px", "85px", "105px"];
+    const skillVerticalPos = ["10px", "45px", "80px", "115px", "150px", "185px", "220px"];
+    const skillDescVerticalPos = ["5px", "15px", "22px", "29px", "36px", "43px", "50px", "57px", "63px"];
+    
+    //Color constants
+	const DEFAULT_NAMETAG_COLOR = "#4a5d23";
+    const STAT_DEFAULT_COLOR = "#E5C68D";
+    const STAT_BUFF_COLOR = "#42adf4";
+    const STAT_DEBUFF_COLOR = "#960000";
     
     //Reroutes the user if they haven't logged into the app
     //Loads data from the DataService if they have
-	$location.path('/');
-    /*if(DataService.getEnemies() == null)
-    	$location.path('/');
-    else{
-    	//$scope.charaData = DataService.getCharacters();
-    	//$scope.enemyData = DataService.getEnemies();
-    	$scope.map = DataService.getMap();
-    	$scope.terrainData = DataService.getTerrain();
-    }*/
-    
-    $scope.toggleGrid = function() {
-    	if($scope.showGrid == 3){
-    		$scope.showGrid = 0;
-    	}
+    function checkData(){
+    	if(DataService.getCharacters() == null)
+    		$location.path('/');
     	else{
-    		$scope.showGrid+=1;
+    		$scope.charaData = DataService.getCharacters();
+			$scope.mapUrl = DataService.getMap();
+			//$scope.terrainData = DataService.getTerrain();
     	}
     };
     
-    $scope.toggleMusic = function() {
-    	if($scope.musicTrack == $scope.numSongs-1){
-    		$scope.musicTrack = 0;
-    	}
-    	else{
-    		$scope.musicTrack+=1;
-    	}
-    	
-    	var audio = document.getElementById('audio');
-    	audio.load();
-    	
-    };
+    //*************************\\
+    // FUNCTIONS FOR MAP SETUP \\
+    //*************************\\
     
-    
+	const boxWidth = 16;
+	const gridWidth = 0;
+
     /* Using the height of the map image, calculates the number of tiles tall
      * the map is and returns a subsection of the rowNames array of that size.
      * Called every 250 ms for the first 5 seconds the app is open.
@@ -54,12 +67,10 @@ app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'DataService', f
     	if(map != null){
     		var height = map.naturalHeight; //calculate the height of the map
         	
-        	//height -= 16;
-        	height = height / 16;
+        	height = height / (boxWidth + gridWidth);
         	var temp = [];
-        	
-        	for(var i = 0; i < height; i++)
-        		temp.push(i+1);
+			for(var i = 0; i < height; i++)
+				temp.push(i+1);
         	
         	if(temp.length != 0){
         		$interval.cancel(rowTimer); //cancel $interval timer
@@ -68,17 +79,16 @@ app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'DataService', f
     	}
     };
     
-    /* Using the width of the map image, calculates the number of tiles wide
-     * the map is and returns an array of that size.
-     * Called every 250 ms for the first 5 seconds the app is open.
-     */
+   /* Using the width of the map image, calculates the number of tiles wide
+    * the map is and returns an array of that size.
+    * Called every 250 ms for the first 5 seconds the app is open.
+    */
    function calcNumColumns(){
     	var map = document.getElementById('map');
     	if(map != null){
     		var width = map.naturalWidth; //calculate the height of the map
         	
-        	//width -= 16;
-        	width = width / 16;
+        	width = width / (boxWidth + gridWidth);
         	var temp = [];
         	
         	for(var i = 0; i < width; i++)
@@ -91,76 +101,55 @@ app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'DataService', f
     	}
     };
     
+    //Returns the vertical position of a glowBox element
+    $scope.determineGlowY = function(index){
+    	return (index * boxWidth) + "px";
+    };
+    
+    //Returns the horizontal position of a glowBox element
+    $scope.determineGlowX = function(index){
+    	return (index * boxWidth) + "px";
+    };
+
+	$scope.toggleGrid = function() {
+    	if($scope.showGrid == 3) $scope.showGrid = 0;
+    	else $scope.showGrid += 1;
+    };
+    
+    $scope.toggleMusic = function() {
+    	if($scope.musicTrack == $scope.numSongs-1) $scope.musicTrack = 0;
+    	else $scope.musicTrack += 1;
+
+    	var audio = document.getElementById('audio');
+    	audio.load();
+    };
+    
     //*************************\\
-    // FUNCTIONS FOR CHARACTER \\
-    // INFO BOX                \\
+    // FUNCTIONS FOR MAP       \\
+    // CHARACTERS/SPRITES      \\
     //*************************\\
     
-    $scope.toggleView = function(index){
-    	var id = 'viewInfo_' + index;
-    	if ($scope[id] == undefined) { $scope[id] = true; }
-    	else { $scope[id] = !$scope[id]; }
-    	
-    	if($scope[id] == true)
-    		setEInfoPos(index);
-    };
-    
-    function setEInfoPos(index){
-    	var enemy = document.getElementById('enemy_'+index);
-    	var box = document.getElementById('enemy_' + index + "_box");
-    	var map = document.getElementById('map');
-		var x = enemy.style.left;
-    	var y = enemy.style.top;
-    	x = parseInt(x.substring(0, x.length));
-    	y = parseInt(y.substring(0, y.length));
-    	
-    	x += 21; 
-    	//x=524;
-    	y -= 80;
-    	if(y < 32)
-    		y = 32;
-    	if(y > 398)
-    		y = 398;
-    
-    	
-    	box.style.left = x + 'px';
-    	box.style.top = y + 'px';
-    }
-    
-    $scope.checkToggle = function(enemy){
-    	enemy = 'viewInfo_' + enemy;
-    	if ($scope[enemy] == undefined) { return false; }
-    	else { return $scope[enemy]; }
-    };
-    
-    //********************\\
-    // FUNCTIONS FOR UNIT \\
-    // PAIRUPS            \\
-    //********************\\
-    
-    //Returns true if a character has a position coordinate
-    $scope.hasPos = function(index){
-    	return charPos[index] != "";
-    };
-    
-    //Returns true if the enemy has a coordinate on the map
-    //Units in the back of a pair up should have a coordinate of ""
-    $scope.enemyHasPos = function(index){
-    	if($scope.enemyData[index][33-1]=="Defeated" || $scope.enemyData[index][33-1]=="Not Deployed"){
-    		return 2;
+    //Toggles character/enemy information box
+    $scope.displayData = function(char){
+    	var bool = $scope[char + "_displayBox"];
+    	if(bool == undefined || bool == false){
+    		positionCharBox(char);
+    		$scope[char + "_displayBox"] = true;
+    	}else{
+    		$scope[char + "_displayBox"] = false;
     	}
-    	return $scope.enemyData[index][33-1].indexOf(",") != -1;
     };
     
-    //Returns true if the currently loaded character is paired up with another character
-    $scope.ifPaired = function(){
-    	if($scope.loadedChar == undefined) return false;
-    	return $scope.loadedChar[57] != "None";
+    $scope.removeData = function(index){
+    	$scope[index + "_displayBox"] = false;
     };
     
-    //Returns true if the enemy at index is paired up
-    $scope.enemyIsPaired = function(index){
-    	var pair = $scope.enemyData[index][32];
+    $scope.checkCharToggle = function(index){
+    	return $scope[index + "_displayBox"] == true;
+    };
+    
+    $scope.isPaired = function(pos){
+		var pair = $scope.enemyData[index][32];
     	if(pair.indexOf(",") == -1 && pair.length > 0 && pair != "Defeated" && pair != "Not Deployed") return true;
     	
     	var name = $scope.enemyData[index][0];
@@ -168,942 +157,365 @@ app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'DataService', f
     		if($scope.enemyData[i][32] == name)
     			return true;
     	return false;
-    };
-    
-    //Returns true if the unit at index is paired up
-    $scope.isPairedAllChars = function(index){
-    	return $scope.charaData[index][57] != "None";
+    	return pos != undefined && pos.indexOf("(") > -1;
     };
     
     //Returns the image URL for the unit in the back of a pairup
-    $scope.getPairUnitIcon = function(index){
-    	var pairedUnit = $scope.charaData[index][57]; //get paired unit's name
-    	var found = false;
-    	var inc = 0;
-    	
-    	//Find paired unit
-    	while(!found && inc < $scope.charaData.length){
-    		if($scope.charaData[inc][0] == pairedUnit){
-    			found = true;
-    		}else inc++;
-    	}
-    	
-    	return $scope.charaData[inc][99];
-    };
-
-    //Switches char info box to show the stats of the paired unit
-    //Triggered when char info box "Switch to Paired Unit" button is clicked
-    $scope.findPairUpChar = function(){
-    	if($scope.loadedChar == undefined) return false;
-    	var pairedUnit = $scope.loadedChar[57]; //get paired unit's name
-    	var found = false;
-    	var inc = 0;
-    	
-    	//Find paired unit
-    	while(!found && inc < $scope.charaData.length){
-    		if($scope.charaData[inc][0] == pairedUnit){
-    			$scope.loadedChar = $scope.charaData[inc];
-    			found = true;
-    		}else inc++;
-    	}
+    //0 = charaData, 1 = enemyData
+    $scope.getPairUnitIcon = function(pair){
+		var pairName = pair.substring(pair.indexOf("(")+1, pair.indexOf(")"));
+    	var pairedUnit = locatePairedUnit(pairName).unit;
+    	return pairedUnit.spriteUrl;
     };
     
-    /* Triggered when the enemy's "Switch to Paired Unit" button is clicked
-     * Finds paired unit, relocates its info box to the same position as the currently
-     * open one and displays it. Old info box is hidden.
-     * WARNING: DOESN'T WORK PROPERLY IF BOTH UNITS ARE DISPLAYED BECAUSE OF RELIANCE
-     * ON SPRITE BEING HIDDEN
-     */
-    $scope.toggleEnemyPair = function(index){
-    	var name = $scope.enemyData[index][0]; //get unit's name
-    	var found = false;
-    	var inc = 0;
+    //Switches char info box to show the stats of the paired unit
+    //Triggered when char info box "Switch to Paired Unit" button is clicked
+    $scope.findPairUpChar = function(char){
+    	var clickedChar = $scope.charaData[char];
+		var pairedUnitName = clickedChar.position.substring(clickedChar.position.indexOf("(")+1, clickedChar.position.indexOf(")"));
+    	var pairedUnit = locatePairedUnit(pairedUnitName);
+		pairedUnit.paired = true;
     	
-    	//Checks if the enemy the info box belongs to is hidden
-    	var spriteHidden;
-    	if($scope.enemyData[index][32].indexOf(",") == -1) spriteHidden = true;
-    	else spriteHidden = false;
-    	
-    	if(!spriteHidden){
-    		//Find pair for front unit
-        	while(!found && inc < $scope.enemyData.length){
-        		if($scope.enemyData[inc][32] == name) found = true;
-        		else inc++;
-        	}
-    	}else{
-    		//Find pair for back unit
-    		name = $scope.enemyData[index][32];
-        	while(!found && inc < $scope.enemyData.length){
-        		if($scope.enemyData[inc][0] == name) found = true;
-        		else inc++;
-        	}
-    	}
     	//Toggle visibility
-    	var id = 'viewInfo_' + index;
-    	$scope[id] = !$scope[id];
+    	$scope[char + "_displayBox"] = false;
+    	$scope[pairedUnit.unitLoc + "_displayBox"] = true;
     	
-    	id = 'viewInfo_' + inc;
-    	if ($scope[id] == undefined) { $scope[id] = true; }
-    	else { $scope[id] = !$scope[id]; }
-    	
-    	var currBox = document.getElementById('enemy_' + index + '_box');
-    	var pairBox = document.getElementById('enemy_' + inc + '_box');
-    	pairBox.style.top = currBox.offsetTop + 'px';
-        pairBox.style.left = currBox.offsetLeft + 'px';
+		//var currEnemy = document.getElementById(char);
+    	var currBox = document.getElementById(char + '_box');
+    	var pairBox = document.getElementById(pairedUnit.unitLoc + '_box');
+    
+		pairBox.style.top = currBox.offsetTop + 'px';
+    	pairBox.style.left = currBox.offsetLeft + 'px';
     };
+    
+    function locatePairedUnit(unitName){
+		var pairedUnit = {};
+    	var charPos = "";
+
+    	//Find paired unit
+    	for(var char in $scope.charaData){
+    		if($scope.charaData[char].name == unitName){
+				pairedUnit = $scope.charaData[char];
+				charPos = char;
+				break;
+			}		
+    	}
+    	
+    	return { 'unit': pairedUnit, 'unitLoc' : charPos };
+    };
+    
+    //Parses an enemy's name to see if it contains a number at the end.
+    //If it does, it returns that number
+    $scope.getEnemyNum = function(name){
+    	if(name == "Boss" || name == "Enmity" || name == "Forthright")
+    		return "IMG/shield_boss.png";
+    	if(name.lastIndexOf(" ") == -1)
+    		return "";
+
+    	name = name.substring(name.lastIndexOf(" ")+1, name.length);
+    	if(name.match(/^[0-9]+$/) != null) return "IMG/num_" + name + ".png";
+    	else return "";
+    };
+    
+    $scope.validPosition = function(pos){ return pos.indexOf(",") != -1; };
+
+	$scope.hasMoved = function(moved){ return moved == "1"; };
+    
+    //Using a character's coordinates, calculates their horizontal
+    //position on the map
+    $scope.determineCharX = function(pos){
+		if(pos == "Not Deployed")
+			return "0px";
+    	pos = pos.substring(0,pos.indexOf(",")); //grab first number
+    	pos = parseInt(pos);
+    	return ((pos - 1) * (boxWidth + (gridWidth * 2)) + 1) + "px";
+    };
+    
+    //Using a character's coordinates, calculates their vertical
+    //position on the map
+    $scope.determineCharY = function(pos){
+		if(pos == "Not Deployed")
+			return "0px";
+		pos = pos.substring(pos.indexOf(",")+1, pos.indexOf("(") != -1 ? pos.indexOf("(") : pos.length); //grab first char
+		pos = pos.trim();
+    	pos = parseInt(pos);
+    	return ((pos - 1) * (boxWidth + (gridWidth * 2)) + 1) + "px";
+    };
+
+    //***********************\\
+    // POSITION CALCULATIONS \\
+    //***********************\\
+    
+    //Relocate the information box relative to the clicked char
+    function positionCharBox(char){
+    	var sprite = document.getElementById(char);
+    	var box = document.getElementById(char + '_box');
+    	
+		var x = sprite.style.left;
+    	var y = sprite.style.top;
+    	x = parseInt(x.substring(0, x.length-2));
+    	y = parseInt(y.substring(0, y.length-2));
+    	
+    	if(x < 671) x += 40;	
+    	else x -= 671;
+    	
+    	if(y < 77) y += 40;
+    	else y -= 77;
+    	
+    	box.style.left = x + 'px';
+    	box.style.top = y + 'px';
+    };
+    
+    $scope.fetchStatVerticalPos = function(index){ return statVerticalPos[index] };
+    $scope.fetchWeaponVerticalPos = function(index){ return weaponVerticalPos[index]; };
+    $scope.fetchWpnRankHorzPos = function(index){ return weaponRankHorzPos[index]; };
+    $scope.fetchWpnDescVerticalPos = function(index){ return weaponDescVerticalPos[index]; };
+    $scope.fetchSklVerticalPos = function(index){ return skillVerticalPos[index]; };
+    $scope.fetchSklDescVerticalPos = function(index){ return skillDescVerticalPos[index]; };
+    
+    $scope.fetchESklHorzPos = function(index){ return eSkillHorzPos[index]; };
+    $scope.fetchEStatVerticalPos = function(index){ return eStatVerticalPos[index]; };
+    $scope.fetchEWeaponVerticalPos = function(index){ return eWeaponVerticalPos[index]; };
+    $scope.fetchEWpnRankHorzPos = function(index){ return eWpnRankHorzPos[index]; };
+    $scope.fetchESklDescHorzPos = function(index){ return eSklDescHorzPos[index]; };
+    $scope.fetchEWpnDescVerticalPos = function(index){ return eWpnDescVerticalPos[index]; };
     
     //***********************\\
     // FUNCTIONS FOR STAT    \\
     // PROCESSING/FORMATTING \\
     //***********************\\
     
-    //Returns true if the rate of atk/crit/hit/avo (@ index) is greater than 0
-    $scope.checkRate = function(index){
-    	if($scope.loadedChar == undefined) return false;
-    	return parseInt($scope.loadedChar[index]) >= 0;
-    };
-    
-    //Returns true if the rate of attack/crit/hit/avo (@ stat) is greater than 0
-    //for the enemy (@ index)
-    $scope.eCheckRate = function(index, stat){
-    	return parseInt($scope.enemyData[index][stat]) >= 0;
-    };
+    //Returns true if the value in the passed attribute is >= 0
+    $scope.checkRate = function(stat){ return parseInt(stat) >= 0; };
+
+	$scope.validHP = function(currHp, maxHp){
+		var c = parseInt(currHp);
+    	var m = parseInt(maxHp);
+    	if(c < m && c > 0) return true;
+    	else return false;
+	};
     
     /* Calculates total buff/debuffs for each stat (str/mag/skl/etc) and
      * returns the appropriate text color as a hex value
      * red <- total<0
      * blue <- total>0
      * tan <- total=0
+     * 
+     * toggle = 0 for char, 1 for enemy
      */
-    $scope.determineStatColor = function(stat){
-    	var color = "#E5C68D"; //default tan
-    	var debuff, weaponBuff, pairUp;
+    $scope.determineStatColor = function(character, index, stat, toggle){
+    	var char;
     	
-    	if($scope.loadedChar == undefined) return color; //returns tan
+    	if(toggle == "0") char = $scope.charaData[character];
+    	else char = $scope.enemyData[character];
     	
     	//Determine appropriate indicies for stat being evaluated (passed string)
-    	switch(stat){
-	    	case "str": debuff = 19; weaponBuff = 45; pairUp = 59; break;
-	    	case "mag": debuff = 20; weaponBuff = 46; pairUp = 60; break;
-	    	case "skl": debuff = 21; weaponBuff = 47; pairUp = 61; break;
-	    	case "spd": debuff = 22; weaponBuff = 48; pairUp = 62; break;
-	    	case "lck": debuff = 23; weaponBuff = 49; pairUp = 63; break;
-	    	case "def": debuff = 24; weaponBuff = 50; pairUp = 64; break;
-	    	case "res": debuff = 25; weaponBuff = 51; pairUp = 65; break;
-	    	default: return color; break;
-    	}
+    	var debuff = char[stat + "Buff"];
+    	var weaponBuff = char["w" + stat + "Buff"];
+    	var pairUp = char["p" + stat + "Buff"];
     	
-    	if($scope.loadedChar[debuff] == "") debuff = 0;
-    	else debuff = parseInt($scope.loadedChar[debuff]);
+    	if(debuff == "") debuff = 0;
+    	else debuff = parseInt(debuff);
     	
-    	weaponBuff = parseInt($scope.loadedChar[weaponBuff]);
+    	weaponBuff = parseInt(weaponBuff);
     	
-    	if($scope.loadedChar[pairUp] == "") pairUp = 0;
-    	else pairUp = parseInt($scope.loadedChar[pairUp]);
+    	if(pairUp == "") pairUp = 0;
+    	else pairUp = parseInt(pairUp);
     	
     	var totalBuffs = debuff + weaponBuff + pairUp;
     	if(totalBuffs > 0)
-    		color = "#42adf4"; //blue buff
+    		return STAT_BUFF_COLOR; //blue buff
     	else if(totalBuffs < 0)
-    		color = "#960000"; //red debuff
-    	return color;
+    		return STAT_DEBUFF_COLOR //red debuff
+    	return STAT_DEFAULT_COLOR;
     };
     
-    /* Calculates total buff/debuffs for each stat (str/mag/skl/etc) and
-     * returns the appropriate text color as a hex value
-     * red <- total<0
-     * blue <- total>0
-     * tan <- total=0
-     */
-    $scope.determineEnemyStatColor = function(stat, index){
-    	var color = "#FFFFFF"; //default tan
-    	return color;
-    	
-    	/*var locs = getEnemyBuffLocs(stat);
-    	var debuff = locs[0];
-    	var weaponBuff = locs[1]; 
-    	var pairUp = locs[2];
-    	
-    	var enemy = $scope.enemyData[index];
-    	debuff = parseInt(enemy[debuff]);
-    	weaponBuff = parseInt(enemy[weaponBuff]);
-    	if(enemy[pairUp] == "") pairUp = 0;
-    	else pairUp = parseInt(enemy[pairUp]);
-    	
-    	var totalBuffs = debuff + weaponBuff + pairUp;
-    	if(totalBuffs > 0)
-    		color = "#42adf4"; //blue buff
-    	else if(totalBuffs < 0)
-    		color = "#960000"; //red debuff
-    	return color;*/
-    };
-    
-    $scope.determineItemColor = function(index,item){
-    	var name = $scope.enemyData[index][item][0];
-    	
-    	if(name.indexOf("(D)")!=-1){
-    		return "#008000";
-    	}
-    	return "#000000";
-    };
-    
-    $scope.enemyHpDraw = function(index){
-    	current = parseInt($scope.enemyData[index][5]);
-    	total = parseInt($scope.enemyData[index][4]);
-    	if(current<total && current > 0){
-    		return 1;
-    	}
-    	else{
-    		return 0;
-    	}
-    	
-    };
-    
-    $scope.enemyHasMoved = function(index){
-    	if($scope.enemyData[index][32-1]==1){
-    		return 1;
-    	}
-    	else
-    		return 0;
-    };
-    
-    $scope.determineHPColor = function(index){
-    	current = parseInt($scope.enemyData[index][5]);
-    	total = parseInt($scope.enemyData[index][4]);
-    	if(current<=total/4){
-    		return "#FF0000";
-    	}else if(current<=total/2){
-    		return "#FFFF00";
-    	}else{
-    		return "#00FF00";
-    	}
-    };
-    
-    
-    //Helper function
-    function getEnemyBuffLocs(stat){
-    	var debuff, weaponBuff, pairUp;
+    $scope.calcEnemyBaseStat = function(enemy, stat){
+    	var char = $scope.enemyData[enemy];
     	
     	//Determine appropriate indicies for stat being evaluated (passed string)
-    	switch(stat){
-	    	case "str": debuff = 16; weaponBuff = 59; pairUp = 66; break;
-	    	case "mag": debuff = 17; weaponBuff = 60; pairUp = 67; break;
-	    	case "skl": debuff = 18; weaponBuff = 61; pairUp = 68; break;
-	    	case "spd": debuff = 19; weaponBuff = 62; pairUp = 69; break;
-	    	case "lck": debuff = 20; weaponBuff = 63; pairUp = 70; break;
-	    	case "def": debuff = 21; weaponBuff = 64; pairUp = 71; break;
-	    	case "res": debuff = 22; weaponBuff = 65; pairUp = 72; break;
-    	}
-    	
-    	return [debuff, weaponBuff, pairUp];
-    };
+    	var total = char[stat];
+    	var debuff = char[stat + "Buff"];
+    	var weaponBuff = char["w" + stat + "Buff"];
+    	var pairUp = char["p" + stat + "Buff"];
     
-    //Checks if there is a value in the index
-    $scope.validDebuff = function(index){
-    	if($scope.loadedChar == undefined) return false;
-    	return $scope.loadedChar[index] != "";
-    };
-    
-    //Returns true if the enemy has a non-zero entry for a stat's debuff
-    $scope.eValidDebuff = function(enemy, index){
-    	return $scope.enemyData[enemy][index] != "0";
-    };
-    
-    //Checks if the value in the index is != 0
-    $scope.validWeaponBuff = function(index){
-    	if($scope.loadedChar == undefined) return false;
-    	return $scope.loadedChar[index] != "0";
-    };
-    
-    //Checks if the loaded character is a) paired with someone
-    //and b) if the stat has a buff that is != 0
-    //Version for characters
-    $scope.validPairUpBuff = function(index){
-    	if($scope.loadedChar == undefined) return false;
-    	var value = $scope.loadedChar[index];
-    	return value != "" && value != "0";
-    };
-    
-    //Returns true if the enemy's stat (str/mag/etc) has a non-zero value
-    //Version for enemies
-    $scope.eValidPairUpBuff = function(enemy, stat){
-    	var s = $scope.enemyData[enemy][stat];
-    	return s != "" && s != "0";
-    };
-    
-    //If a weapon increases a stat (str/mag/etc), append that value with
-    //a plus (ex. "5" -> "+5")
-    //Version for characters
-    $scope.formatWeaponBuff = function(index){
-    	var value = parseInt($scope.loadedChar[index]);
-    	if(value > 0) return "+" + value;
-    	else return value;
-    };
-    
-    //If a weapon increases a stat (str/mag/etc), append that value with
-    //a plus (ex. "5" -> "+5")
-    //Version for enemies
-    $scope.eFormatWeaponBuff = function(index, stat){
-    	var value = parseInt($scope.enemyData[index][stat]);
-    	if(value > 0) return "+" + value;
-    	else return value;
-    };
-    
-    //Calculates the base value for an enemy's stat (str/mag/etc) by subtracting
-    //debuff/buffs from the total stat value
-    $scope.calcEnemyBaseStat = function(index, stat){
-    	var locs = getEnemyBuffLocs(stat);
-    	var debuff = locs[0];
-    	var weaponBuff = locs[1]; 
-    	var pairUp = locs[2];
-    	var total;
-    	
-    	switch(stat){
-	    	case "str": total = 7; break;
-	    	case "mag": total = 8; break;
-	    	case "skl": total = 9; break;
-	    	case "spd": total = 10; break;
-	    	case "lck": total = 11; break;
-	    	case "def": total = 12; break;
-	    	case "res": total = 13; break;
-    	}
-    	
-    	var enemy = $scope.enemyData[index];
-    	total = parseInt(enemy[total]);
-    	debuff = parseInt(enemy[debuff]);
-    	weaponBuff = parseInt(enemy[weaponBuff]);
-    	if(enemy[pairUp] == "") pairUp = 0;
-    	else pairUp = parseInt(enemy[pairUp]);
+    	total = parseInt(total);
+    	debuff = parseInt(debuff);
+    	weaponBuff = parseInt(weaponBuff);
+    	if(pairUp == "") pairUp = 0;
+    	else pairUp = parseInt(pairUp);
     	
     	return total - (debuff + weaponBuff + pairUp);
     };
+
+	$scope.getStatus = function(status, turnsLeft){
+		if(status == "Doomed") return "IMG/Status/s_" + status + turnsLeft +".png";
+		else return "IMG/Status/s_" + status + ".png";
+	};
     
-    //*************************\\
-    // FUNCTIONS FOR INVENTORY \\
-    // WEAPONS PROFICIENCY     \\
-    //*************************\\
-    
-    //Checks if a weapon name is a valid type, so that weapon proficiency can be displayed
-    //Version for characters
-    $scope.existsWeapon = function(index){
-    	if($scope.loadedChar == undefined) return false;
-    	return compareWeaponName($scope.loadedChar[index]);
+    $scope.validSkill = function(skill){
+    	return skill != "" && skill != "None";
     };
-    
-    //Checks if a weapon name is a valid type, so that weapon proficiency can be displayed
-    //Version for enemies
-    $scope.existsEnemyWeapon = function(enemy,index){
-    	return $scope.enemyData[enemy][index] != "-";
-    };
-    
-    //Helper function
-    function compareWeaponName(weaponName){
-    	return weaponName != "" && weaponName != "N/A";
-    };
-    
-    //Returns the weapon rank icon relevant to the passed weapon type
-    $scope.weaponIcon = function(index){    	
-    	var w = $scope.loadedChar[index];
-    	return getIcon(w);
-    };
-    
-    //Returns the weapon rank icon relevant to the passed weapon type
-    $scope.enemyWeaponIcon = function(enemy,index){
-    	var w = $scope.enemyData[enemy][index];
-    	w = w.substring(2, w.length);
-    	return getIcon(w);
-    };
-    
-    //Helper function :)
-    function getIcon(weaponName){
-    	var c = weaponName.toLowerCase();
-    	return "IMG/rank_" + c + ".png";
-    };
-    
-    $scope.getTimeOut= function(){
-    	return "IMG/time_out.png";
-    };
-    
-    //Returns the first character in the passed string
-    $scope.formatWeaponRank = function(str){
-    	return str.substring(0,1);
-    };
-    
-    $scope.formatItemRank = function(str){
-    	
-    	if(str[1]=="Consumable" || str[1]=="Item"|| str[1]=="Equipment"|| str[1]=="None"){
-    		return str[1];
-    	}
-    	else{
-    		return str[2] + "-" + str[1];
-    	}
-    };
-    
-    $scope.calcExp = function(index){
-    	var exp = parseInt($scope.enemyData[index][17]);
-    	
-    	if($scope.enemyData[index][16] == "40")
-    		return "73px";
-    		
-    	return ((exp/100) * 73) + 'px'; //73 is the max number of pixels
-    };
-    
-    $scope.hasExp = function(index){
-    	
-    	if($scope.enemyData[index][17] == "-")
-    		return false;
-    		
-    	return true;
-    };
-    
-    //Calculates the percentage of weapon proficicency for a specific weapon,
-    //then returns the width of the progress bar in pixels
-    $scope.calcWeaponExp = function(index, p){
-    	var exp = $scope.enemyData[index][p];
-    	var progress = 0;
-    	var total = 10;
-    	if(exp<10){
-    		//E
-    		progress = exp;
-    		total = 10;
-    	}
-    	else if(exp<30){
-    		//D
-    		progress = exp-10;
-    		total = 20;
-    	}
-    	else if(exp<60){
-    		//C
-    		progress = exp-30;
-    		total = 30;
-    	}
-    	else if(exp<100){
-    		//B
-    		progress = exp-60;
-    		total = 40;
-    	}
-    	else if(exp<150){
-    		//A
-    		progress = exp-100;
-    		total = 50;
-    	}
-    	else{
-    		//S
-    		progress = 1;
-    		total = 1;
-    	}
-    	
-    	return ((progress/total) * 30) + 'px'; //30 is the max number of pixels
-    };
-    
-    $scope.filterItemName = function(enemy, weapon){
-    	var w = $scope.enemyData[enemy][weapon][0];
-    	if(w.indexOf("(") == -1) return w;
-    	else return w.substring(0, w.indexOf("(")-1);
-    };
-    
-    $scope.filterItemName2 = function(enemy, weapon){
-    	var w = $scope.enemyData[enemy][weapon][0];
-    	if(w.indexOf("(D)") == -1) return w;
-    	else return w.substring(0, w.indexOf("(D)")-1);
-    };
-    
-    $scope.filterItemUses = function(enemy, weapon){
-    	var w = $scope.enemyData[enemy][weapon][0];
-    	if(w.indexOf("(") == -1) return "-";
-    	else return w.substring(w.indexOf("(")+1, w.indexOf(")"));
-    };
-    
-    //Checks to see if the weapon name in the passed slot is null
-    //Version for characters
-    $scope.validWeapon = function(index){
-    	if($scope.loadedChar == undefined) return false;
-    	
-    	var weaponName = $scope.loadedChar[index][0];
-    	if(weaponName != "-" && weaponName != "- (-)")
-    		return true;
-    	else return false;
-    };
-    
-    //Checks to see if the weapon name in the passed slot is null
-    //Version for enemies
-    $scope.validEnemyWeapon = function(enemy, index){
-    	var weaponName = $scope.enemyData[enemy][index][0];
-    	if(weaponName != "")
-    		return true;
-    	else return false;
-    };
-    
-    $scope.validWeakness = function(enemy, index){
-    	var weakness = $scope.enemyData[enemy][3][2][index];
-    	if(weakness == "" || weakness == undefined || weakness == "NPC-only")
-    		return false;
-    	else return true;
-    };
-    
-    $scope.getWeakness = function(enemy, index){
-    	return "IMG/Weakness/weak_" + $scope.enemyData[enemy][3][2][index] + ".png";
-    };
-    
-    //Returns true if the weapon at the index has a description
-    $scope.weaponHasDes = function(index){
-    	if($scope.loadedChar == undefined) return false;
-    	return $scope.loadedChar[index].length == 20;
-    };
-    
-    $scope.eWeaponHasDes = function(w, index){
-    	return true;
-    	//return $scope.enemyData[index][w].length == 20;
-    };
-    
-    //Returns true if the weapon at the index has a listed range
-    $scope.hasWeaponRange = function(index){
-    	if($scope.loadedChar == undefined) return false;
-    	return $scope.loadedChar[index][18] != "";
-    };
-    
-    $scope.eHasWeaponRange = function(w, index){
-    	return true;
-    	//return $scope.enemyData[index][w][18] != "";
-    };
-    
-    //Returns true if the weapon at the index has a listed rank
-    $scope.hasWeaponRank = function(index){
-    	if($scope.loadedChar == undefined) return false;
-    	return $scope.loadedChar[index][4] != "";
-    };
-    
-    $scope.eHasWeaponRank = function(w, index){
-    	return true;
-    	//return $scope.enemyData[index][w][2] != "";
-    };
-    
-    //Returns the icon for the class of the weapon at the index
-    //Version for enemies
-    $scope.getEnemyWeaponClassIcon = function(enemy,index){
-    	var type = $scope.enemyData[enemy][index][1];
-    	var name = $scope.enemyData[enemy][index][0];
-    	if(type == undefined) return "";
-    	if(name.indexOf("(")!=-1){
-    		name = name.substring(0,name.indexOf("(")-1);
-    	}
-    	if(name == "Wind" || name == "Elwind" || name == "Arcwind" || name == "Rexcalibur" || name == "Magnum Gale"){
-    		return "IMG/Items/type_tome_wind.png";
-    	}
-    	if(name == "Fire" || name == "Elfire" || name == "Arcfire" || name == "Bolganone" || name == "Magnum Flare"){
-    		return "IMG/Items/type_tome_fire.png";
-    	}
-    	if(name == "Thunder" || name == "Elthunder" || name == "Arcthunder" || name == "Thoron" || name == "Magnum Bolt"){
-    		return "IMG/Items/type_tome_thunder.png";
-    	}
-    	if(name == "Freeze" || name == "Elfreeze" || name == "Arcfreeze" ||  name == "Niflheim" || name == "Magnum Chill" || name == "Akull"){
-    		return "IMG/Items/type_tome_freeze.png";
-    	}
-    	if(name == "Shadow Shot" || name == "Venom Shot"){
-    		return "IMG/Items/type_tome_dark.png";
-    	}
-    	if(name == "Light"){
-    		return "IMG/Items/type_tome_light.png";
-    	}
-    	if(name == "Brine"){
-    		return "IMG/Items/type_tome_water.png";
-    	}
-    	if(name == "Earthquake"){
-    		return "IMG/Items/type_tome_earth.png";
-    	}
-    	if(name == "Verglas"){
-    		return "IMG/Items/type_sword_verglas.png";
-    	}
-    	if(name == "Torden"){
-    		return "IMG/Items/type_tome_torden.png";
-    	}
-    	if(name == "Solas"){
-    		return "IMG/Items/type_tome_solas.png";
-    	}
-    	
-    	
-    	if(name == "Dagger" || name == "Throwing Sword" || name == "Kukri" || name == "Kodachi" || name == "Effervescence" || name == "Esurience"){
-    		return "IMG/Items/type_sword_dagger.png";
-    	}
-    	if(name=="Stone Blade"||name=="Metal Blade"||name=="Ivory Blade"){
-    		return "IMG/Items/type_sword_blade.png";
-    	}
-    	if(name == "Javelin" || name == "Short Spear" || name == "Spear" || name == "Nageyari"){
-    		return "IMG/Items/type_lance_javelin.png";
-    	}
-    	if(name=="Stone Greatlance"||name=="Metal Greatlance"||name=="Ivory Greatlance"){
-    		return "IMG/Items/type_lance_greatlance.png";
-    	}
-    	if(name == "Hatchet" || name == "Hand Axe" || name == "Short Axe" || name == "Tomahawk"){
-    		return "IMG/Items/type_axe_hatchet.png";
-    	}
-    	if(name=="Stone Poleaxe"||name=="Metal Poleaxe"||name=="Ivory Poleaxe"){
-    		return "IMG/Items/type_axe_poleaxe.png";
-    	}
-    	if(name=="Wooden Shortbow"||name=="Stone Shortbow"||name=="Metal Shortbow"||name=="Ivory Shortbow"){
-    		return "IMG/Items/type_bow_shortbow.png";
-    	}
-    	if(name=="Wooden Longbow"||name=="Stone Longbow"||name=="Metal Longbow"||name=="Ivory Longbow"){
-    		return "IMG/Items/type_bow_longbow.png";
-    	}
-    	if(name == "Wooden Staff" || name == "Stone Staff" || name == "Metal Staff" || name == "Ivory Staff" || name == "Reaper Staff"){
-    		return "IMG/Items/type_staff_wooden.png";
-    	}
-    	if(name == "Stone Staff"){
-    		return "IMG/Items/type_staff_stone.png";
-    	}
-    	if(name == "Wooden Staff" || name == "Stone Staff" || name == "Metal Staff" || name == "Ivory Staff" || name == "Reaper Staff"){
-    		return "IMG/Items/type_staff_wooden.png";
-    	}
-    	if(name == "Energize" || name == "Shield" || name == "Enfeeble" || name == "Expose" || name == "Poison" || name == "Curse"){
-    		return "IMG/Items/type_staff_status.png";
-    	}
-    	if(name == "Restore" || name == "Unlock" || name == "Rescue" || name == "Warp" || name == "Hammerne" || name == "Vitae"){
-    		return "IMG/Items/type_staff_misc.png";
-    	}
-    	if(name == "Reaper Axes"){
-    		return "IMG/Items/type_axe_reaper.png";
-    	}
-    	if(name == "Devastation"){
-    		return "IMG/Items/type_monster_frostbite.png";
-    	}
-    	if(name == "Evisceration"){
-    		return "IMG/Items/type_monster_feather.png";
-    	}
-    	if(name == "Ravage"){
-    		return "IMG/Items/type_monster_ravage.png";
-    	}
-    	if(name == "Obelisk"){
-    		return "IMG/Items/type_sword_obelisk.png";
-    	}
-    	if(name == "Highlander"){
-    		return "IMG/Items/type_sword_highlander.png";
-    	}
-    	if(name == "Spellfoil"){
-    		return "IMG/Items/type_sword_spellfoil.png";
-    	}
-    	if(name.indexOf("Fior")!=-1){
-    		return "IMG/Items/type_relic_fiore.png";
-    	}
-    	if(name == "Parashu" || name == "Blighted Parashu"){
-    		return "IMG/Items/type_axe_parashu.png";
-    	}
-    	if(name == "Exacerbate"){
-    		return "IMG/Items/type_staff_exacerbate.png";
-    	}
-    	if(name == "Bloom Trophy"){
-    		return "IMG/Items/type_none_trophy.png";
-    	}
-    	if(name == "Calling Card" || name == "Death Arcana"|| name == "Arcana Deck"){
-    		return "IMG/Items/type_none_card.png";
-    	}
-    	
-    	if(name == "Dromaero Egg" || name == "Large Dromaero Egg"){
-    		return "IMG/Items/type_item_egg.png";
-    	}
-    	if(name.indexOf("Saeptum")!=-1){
-    		return "IMG/Items/type_equipment_saeptum.png";
-    	}
-    	
-    	if(name == "Turkey"){
-    		return "IMG/Items/item_turkey.png";
-    	}
-    	if(name == "Musty Tome" || name == "Unfinished Tome" || name == "Nearly Finished Tome"){
-    		return "IMG/Items/item_mustytome.png";
-    	}
-    	if(name == "Weed" || name == "Not Weed"){
-    		return "IMG/Items/item_weed.png";
-    	}
-    	if(name == "Door Key" || name == "Chest Key" || name == "Master Key"){
-    		return "IMG/Items/type_key.png";
-    	}
-    	
-    	type = type.toLowerCase();
-    	return "IMG/Items/type_" + type + ".png";
-    };
-   
+
     //Returns the image for a character's skill, if they're at the minimum
     //level to obtain it. Otherwise, returns the blank skill image.
-    $scope.fetchSkillImage = function(minLvl){
-    	if($scope.loadedChar == undefined) return "";
-    	/*if(minLvl > parseInt($scope.loadedChar[2]))
-    		return "IMG/SKL/skl_blank.png";*/
+    $scope.fetchSkillImage = function(skillName, charLvl, index){
+    	var minLvl = (index - 1) * 5;
+    	if(minLvl == 0) minLvl = 1;
     	
-    	var skillName;
+    	if(skillName == "-" || minLvl > parseInt(charLvl))
+    		return "IMG/SKL/skl_blank.png";
     	
-    	switch(minLvl){
-	    	case 1: skillName = 105; break;
-	    	case 5: skillName = 106; break;
-	    	case 10: skillName = 107; break;
-	    	case 15: skillName = 108; break;
-	    	case 20: skillName = 109; break;
-	    	case 25: skillName = 110; break;
-	    	case 30: skillName = 111; break;
-	    	case 35: skillName = 112; break;
-    	}
+    	if(index == "0")
+    		return "IMG/SKL/skl_personal.png";
     	
-    	skillName = $scope.loadedChar[skillName][0];
     	skillName = skillName.toLowerCase();
     	skillName = skillName.replace(/ /g,"_");
     	return "IMG/SKL/skl_" + skillName + ".png";
     };
     
-    $scope.eFetchSkillImage = function(enemy, skl){
-		//var skillName = $scope.enemyData[enemy][skl][0];
-    	//if(skillName == "-") return "IMG/SKL/skl_blank.png"; //no skill
-    	if(skl == 42) return "IMG/SKL/skl_personal.png"; //personal skill
+    $scope.checkShields = function(num, shields){
+    	num = parseInt(num);
+    	shields = parseInt(shields);
     	
-    	skillName = skillName.toLowerCase();
-    	skillName = skillName.replace(/ /g,"_");
-    	return "IMG/type_" + skillName + ".png";
-    };
-    
-    //For displaying enemy skill gems, checks to see if the enemy has a
-    //skill name in that slot
-    $scope.hasSkill = function(enemy,index){
-    	return $scope.enemyData[enemy][index][0] != "None";
-    };
-    
-    $scope.checkShields = function(value){
-    	if($scope.loadedChar == undefined) return "IMG/emptyshield.png";
-    	var num = parseInt($scope.loadedChar[17]);
-    	if(num == 10) return "IMG/blueshield.png";
-    	else if(num >= value) return "IMG/filledshield.png";
+    	if(shields == 10) return "IMG/blueshield.png";
+    	else if(shields >= num) return "IMG/filledshield.png";
     	else return "IMG/emptyshield.png";
     };
+
+	$scope.getPairName = function(pos){
+		if(pos.indexOf("(") == -1) return "None";
+		else return pos.substring(pos.indexOf("(")+1, pos.indexOf(")"));
+	};
+
+	$scope.getPairSupportRank = function(name, pos){
+		var supportRanks = DataService.getSupportIndex();
+		var partner = pos.substring(pos.indexOf("(")+1, pos.indexOf(")"));
+		var rank = supportRanks[name][partner];
+		if(rank != "-") return rank;
+		else return "None";
+	};
+
+	$scope.buildPairSupportBonuses = function(pos){
+		var data = DataService.getSupportBonuses();
+		var partner = pos.substring(pos.indexOf("(")+1, pos.indexOf(")"));
+		var bonuses = data[partner];
+		var returnStr = "";
+
+		for(var stat in bonuses){
+			var value = parseInt(bonuses[stat]);
+			if(value > 0){
+				returnStr += stat + ": +" + bonuses[stat] + ", ";
+			}else if(value < 0){
+				returnStr += stat + ": " + bonuses[stat] + ", ";
+			}	
+		}	
+		
+		if(returnStr.length > 2)
+			returnStr = returnStr.substring(0, returnStr.length-2);
+		return returnStr;
+	};
     
-    //Checks if the shield value for the passed enemy is greater than number
-    $scope.checkEShields = function(enemy, value){
-    	var num = parseInt($scope.enemyData[enemy][3]);
-    	if(num == 10) return "IMG/blueshield.png";
-    	else if(num >= value) return "IMG/filledshield.png";
-    	else return "IMG/emptyshield.png";
-    };
+    //*************************\\
+    // FUNCTIONS FOR INVENTORY \\
+    // & WEAPONS PROFICIENCY   \\
+    //*************************\\
     
-    $scope.enemyHasNum = function(index){
-    	var name = $scope.enemyData[index][0];
-    	if(name == "Boss" || name == "Scheme" || name == "Slam" || name == "Forthright")
-    		return true;
-    	if(name.lastIndexOf(" ") == -1 || name == undefined)
-    		return false;
-    	name = name.substring(name.lastIndexOf(" ")+1, name.length);
-    	if(name.match(/^[0-9]+$/) != null) return true;
+    //Checks to see if the weapon name in the passed slot is null
+    //Version for characters
+    $scope.validWeapon = function(weaponName){
+    	if(weaponName != "-" && weaponName != "- (-)" && weaponName != "") return true;
     	else return false;
     };
     
-    $scope.enemyHasStatus = function(index){
-    	var status = $scope.enemyData[index][29][0];
-    	//these are statuses that don't display an icon
-    	if(status != "None" && status != "Emerging" && status != "Marked" && status != "Defeated" && status != "Disconcerted" && status != "Blessed" && status != "Regenerating") return true;
-    	else return false;
+    //Returns the icon for the class of the weapon at the index
+    //Version for characters
+    $scope.getWeaponClassIcon = function(type){
+    	type = type.toLowerCase();
+    	return "IMG/type_" + type + ".png";
     };
     
-    $scope.enemyHasStatusU = function(index){
-    	var status = $scope.enemyData[index][29][0];
-    	if(status != "None" && status != "Defeated") return $scope.enemyData[index][30];
-    	else return 0;
+    //Checks if the passed "type" is listed in the effectiveness column of a character's weapon
+    //(Ex. Flier, Monster, Beast, Dragon, Armor)
+    $scope.weaponEffective = function(types, goal){
+    	types = types.toLowerCase();
+    	return types.indexOf(goal) != -1;
     };
     
-    $scope.enemyOwnsGold = function(index){
-    	var gold = $scope.enemyData[index][15];
-    	if(gold != "-" && gold != "" && gold != undefined) return true;
-    	else return false;
+    $scope.existsWeapon = function(weaponName){
+    	return weaponName != "" && weaponName != "None";
     };
     
-    //Parses an enemy's name to see if it contains a number at the end.
-    //If it does, it returns that number
-    $scope.getEnemyNum = function(index){
-    	var name = $scope.enemyData[index][0];
-    	if(name == "Boss" || name == "Enmity" || name == "Forthright")
-    		return "IMG/shield_boss.png";
-    	name = name.substring(name.lastIndexOf(" ")+1, name.length);
-    	return "IMG/num_" + name + ".png";
+    //Returns the weapon rank icon relevant to the passed weapon type
+    $scope.weaponIcon = function(weaponName){ 	
+    	var c = weaponName.toLowerCase();
+    	return "IMG/rank_" + c + ".png";
     };
     
-    $scope.getEnemyStatus = function(index){
-    	var status = $scope.enemyData[index][29][0];
-    	if(status == "Doomed"){
-    		return "IMG/Status/s_" + status + $scope.enemyData[index][30] +".png";
-    	}
-    	else
-    		return "IMG/Status/s_" + status + ".png";
+    //Calculates the percentage of weapon proficicency for a specific weapon,
+    //then returns the width of the progress bar in pixels
+    $scope.calcWeaponExp = function(exp){
+		return ((exp/25) * (boxWidth-2));
     };
     
-    $scope.getEnemyStatusType = function(index){
-    	var status = $scope.enemyData[index][29][0];
-    	if(status == "None"){
-    		return "Normal Status";
-    	}
-    	else
-    		return status;
+    //Checks if there is a value in the index
+    $scope.validDebuff = function(value){
+    	return value != "" && value != "0" && value != "-";
     };
     
-    $scope.getEnemyAtt = function(index){
-    	var power = $scope.enemyData[index][23][4];
-    	if(power == "-" || power == ""){
-    		return "-";
-    	}
-    	
-    	power = parseInt(power);
-    	
-    	//S-rank power boost
-    	if($scope.enemyData[index][38]==$scope.enemyData[index][23][1]&&parseInt($scope.enemyData[index][39])>=150)
-    		power +=1;
-    	if($scope.enemyData[index][40]==$scope.enemyData[index][23][1]&&parseInt($scope.enemyData[index][41])>=150)
-    		power +=1;
-    	if($scope.enemyData[index][42]==$scope.enemyData[index][23][1]&&parseInt($scope.enemyData[index][43])>=150)
-    		power +=1;
-    	
-    	var weapon = $scope.enemyData[index][23][1];
-    	var effect = $scope.enemyData[index][23][12];
-    	if(effect==28||effect==30){
-    		return power + parseInt($scope.enemyData[index][6]);
-    	}
-    	if(effect==29||effect==31){
-    		return power + parseInt($scope.enemyData[index][7]);
-    	}
-    	
-    	if(weapon=="Tome"||weapon=="Talisman"||weapon=="Relic"||weapon=="Staff"){
-    		//magical
-    		return power + parseInt($scope.enemyData[index][7]);
-    	}
-    	else{
-    		//physical
-    		return power + parseInt($scope.enemyData[index][6]);
-    	}
+    $scope.formatWeaponName = function(name){
+    	if(name.indexOf("(") == -1) return name;
+    	else return name.substring(0, name.indexOf("(")-1);
     };
     
-    $scope.getEnemyHit = function(index){
-    	var hit = $scope.enemyData[index][23][5];
-    	if(hit == "-" || hit == ""){
-    		return "-";
-    	}
-    	
-    	hit = parseInt(hit);
-    	
-    	if($scope.enemyData[index][38]==$scope.enemyData[index][23][1]&&parseInt($scope.enemyData[index][39])>=150)
-    		hit +=15;
-    	if($scope.enemyData[index][40]==$scope.enemyData[index][23][1]&&parseInt($scope.enemyData[index][41])>=150)
-    		hit +=15;
-    	if($scope.enemyData[index][42]==$scope.enemyData[index][23][1]&&parseInt($scope.enemyData[index][43])>=150)
-    		hit +=15;
-    	
-    	return Math.floor(hit + parseInt($scope.enemyData[index][8])*2 + parseInt($scope.enemyData[index][10])/2);
+    $scope.hasWeaponRank = function(rank){
+    	return rank != "-";
     };
     
-    $scope.getEnemyCrit = function(index){
-    	var crit = $scope.enemyData[index][23][6];
-    	var cls = $scope.enemyData[index][3][0];
-    	var bonus = 0;
-    	
-    	if(cls=="Assassin"||cls=="Rogue"||cls=="Shepherd")
-    		bonus+=10;
-    	else if(cls=="Berserker"||cls=="Sniper"||cls=="Swordsmaster"||cls=="Halberdier"||cls=="Savior")
-    		bonus+=15;
-    	
-    	if(crit == "-" || crit == ""){ return "-"; }
-    	else return Math.floor(parseInt(crit) + parseInt($scope.enemyData[index][8])/2 + bonus);
+    //Returns true if the weapon at the index is not an item
+    $scope.notItem = function(type){
+    	return type != "Staff" && type != "Consumable" && type != "Mystery";
     };
     
-    $scope.getEnemyAvo = function(index){
-    	var speed = parseInt($scope.enemyData[index][9]);
-    	var loss = $scope.enemyData[index][23][7];
-    	
-    	if(loss == "-" || loss == "")
-    		loss = 0;
-    	else
-    		loss = parseInt(loss);
-    	
-    	if ($scope.enemyData[index][13] != "-" && $scope.enemyData[index][13] != undefined && $scope.enemyData[index][13] != "")
-    		loss -= parseInt($scope.enemyData[index][13]);
-    	if(loss < 0)
-    		loss = 0;
-    	speed -= loss;
-    	
-    	var avoBonus = $scope.enemyData[index][33][1];
-    	if(avoBonus == "-") avoBonus = 0;
-    	else avoBonus = parseInt(avoBonus);
-    	
-    	return speed*2 + parseInt($scope.enemyData[index][10]) + avoBonus;
+    $scope.setDescriptionLoc = function(type){
+    	if(type != "Staff" && type != "Consumable" && type != "Mystery") return "60px";
+    	else return "25px";
     };
+
+	$scope.determineNametagColor = function(char){
+		if(char.indexOf("char_") != -1) return DEFAULT_NAMETAG_COLOR;
+		
+		if($scope.charaData[char].affiliation == "") return DEFAULT_NAMETAG_COLOR;
+		else return $scope.charaData[char].affiliation;
+	};
     
-    //***********************\\
-    // POSITION CALCULATIONS \\
-    // FOR VARIOUS THINGS    \\
-    //***********************\\
+    //***************************\\
+    // MOUSEOVER/MOUSEOUT EVENTS \\
+    //***************************\\
     
-    //Using a character's coordinates, calculates their horizontal
-    //position on the map
-    $scope.determineX = function(index){
-    	var pos = $scope.enemyData[index][33-1];
-    	if(index == 0) numDefeat = 0;
-    	
-    	if(pos == "Defeated" || pos == "Not Deployed"){
-    		
-    		return (((((numDefeat-1)%30)+2)*16))-16 + "px";
-    	}
-    	
-    	var comma = pos.indexOf(",");
-    	if(comma == -1) return "-1px";
-    	
-    	pos = pos.substring(0,comma); //grab first 1-2 chars
-    	pos = parseInt(pos);
-    	return ((pos*16))-16 + "px";
-    };
+    $scope.weaponHoverIn = function(char, index){ $scope[char + "wpn_" + index] = true; };
+    $scope.weaponHoverOut = function(char, index){ $scope[char + "wpn_" + index] = false; };
+    $scope.weaponHoverOn = function(char, index){ return $scope[char + "wpn_" + index] == true; };
     
-    //Using a character's coordinates, calculates their vertical
-    //position on the map
-    $scope.determineY = function(index){
-    	var pos = $scope.enemyData[index][33-1];
-    	if(pos == "Defeated" || pos == "Not Deployed"){
-    		numDefeat +=1;
-    		return (34+Math.floor((numDefeat-1)/30))*16-16+"px";
-    	}
-    	var comma = pos.indexOf(",");
-    	if(comma == -1) return "-1px";
-    	
-    	pos = pos.substring(comma+1,pos.length); //grab last 1-2 chars
-    	pos = parseInt(pos);
-    	return ((pos*16))-16 + "px";
-    };
+    $scope.skillHoverIn = function(char, index){ $scope[char + "skl_" + index] = true; };
+    $scope.skillHoverOut = function(char, index){ $scope[char + "skl_" + index] = false; };
+    $scope.skillHoverOn = function(char, index){ return $scope[char + "skl_" + index] == true; };
     
-    //Returns the vertical position of a glowBox element
-    $scope.determineGlowY = function(index){
-    	//return (((index+1)*34)+2) + "px";
-    	return (index*16) + "px";
-    };
+    $scope.statHoverIn = function(char, stat){ $scope[char + "hov_" + stat] = true; };
+    $scope.statHoverOut = function(char, stat){ $scope[char + "hov_" + stat] = false; };
+    $scope.statHoverOn = function(char, stat){ return $scope[char + "hov_" + stat] == true; };
     
-    //Returns the horizontal position of a glowBox element
-    $scope.determineGlowX = function(index){
-    	//return (index*34) + "px";
-    	return (index*16) + "px";
-    };
-    
-    $scope.determineInfoColor = function(index){
-    	var aff = $scope.enemyData[index][1];
-    	
-    	if(aff == "Immolan Guard" || aff == "Gershom" || aff == "Guile" || aff == "Community (Human)" || aff == "Community (Reaper)"){
-    		return "#E01616";
-    	}
-    	else if(aff == "Environment"){
-    		return "#FFFFFF";
-    	}
-    	else if(aff == "Belenus" || aff == "Self"){
-    		return "#FF6600";
-    	}
-    	else if(aff == "Reaper" || aff == "Nadir Reaper" || aff == "Apex Reaper" || aff == "Lettie"){
-    		return "#E900E9";
-    	}
-    	else if(aff == "Loveless"){
-    		return "#9D009D";
-    	}
-    	else if(aff == "Whimsy" || aff == "Cupidity" || aff == "Neutral" || aff == "Prisoner"){
-    		return "#089000";
-    	}
-    	else{
-    		return "#3850e0";
-    	}
-    };
+    $scope.pairUpHoverIn = function(char){ $scope[char + "pair"] = true; };
+    $scope.pairUpHoverOut = function(char){ $scope[char + "pair"] = false; };
+    $scope.pairUpHoverOn = function(char){ return $scope[char + "pair"] == true; };
+
+	$scope.statusHoverIn = function(char){ $scope[char + "status"] = true; };
+	$scope.statusHoverOut = function(char){ $scope[char + "status"] = false; };
+	$scope.statusHoverOn = function(char){ return $scope[char + "status"] == true; };
+
+	$scope.traitHoverIn = function(char){ $scope[char + "trait"] = true; };
+	$scope.traitHoverOut = function(char){ $scope[char + "trait"] = false; };
+	$scope.traitHoverOn = function(char){ return $scope[char + "trait"] == true; };
     
     //*************************\\
     // SUPPORT FOR DRAGABILITY \\
@@ -1137,14 +549,15 @@ app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'DataService', f
     };
     
     function initializeListeners(){;
-    	var test = document.getElementById('enemy_0_box');
-    	if($scope.enemyData != undefined && test != null){
-    		test.addEventListener('dragstart',dragStart,false);
-    		
+    	var test = document.getElementById('char_0_box');
+    	if($scope.charaData != undefined && test != null){
+
+    		var i = 0;
     		//Set event listeners to be activated when the div is dragged
-    	    for(var i = 1; i < $scope.enemyData.length; i++){
-    	    	var box = document.getElementById('enemy_' + i + '_box');
+    	    for(var char in $scope.charaData){
+    	    	var box = document.getElementById(char + '_box');
     	    	box.addEventListener('dragstart',dragStart,false);
+    	    	i++;
     	    }
     	    
     	    //Set event listeners

@@ -107,7 +107,7 @@ app.service('DataService', ['$rootScope', function ($rootScope) {
         });
     };
 
-	 function fetchStatusData(type){
+	function fetchStatusData(type){
     	gapi.client.sheets.spreadsheets.values.get({
             spreadsheetId: sheetId,
             majorDimension: "ROWS",
@@ -146,7 +146,7 @@ app.service('DataService', ['$rootScope', function ($rootScope) {
 			range: sheet,
 	    }).then(function(response) {
 			terrainLocs = response.result.values;
-			updateProgressBar(); //update progress bar
+			updateProgressBar();
 			processCharacters(type);
 		});
 	};	    
@@ -165,7 +165,7 @@ app.service('DataService', ['$rootScope', function ($rootScope) {
 					'affiliation' : c[1],
 					'spriteUrl' : c[2],
 					'class' : fetchClass(c[0], c[1], c[3]),
-					'maxHP' : c[4],
+					'maxHp' : c[4],
 					'currHp' : c[5],
 					'Str' : c[6],
 					'Mag' : c[7],
@@ -182,6 +182,7 @@ app.service('DataService', ['$rootScope', function ($rootScope) {
 					'skills': {},
 					'inventory': {},
 					'status': fetchStatus(c[29]),
+					'turnsLeft' : c[30],
 					'moved' : c[31],
 					'position' : c[32],
 					'weaponRanks' : {
@@ -204,15 +205,17 @@ app.service('DataService', ['$rootScope', function ($rootScope) {
 					'exp' : c[47]
 				};
 				
-				for(var i = 18; i < 23; i++)
-					currObj.skills["skl"+(i-17)] = fetchSkill(c[i]);
+				for(var j = 18; j < 23; j++)
+					currObj.skills["skl"+(j-17)] = fetchSkill(c[j]);
 
-				for(var j = 23; j < 28; j++)
-					currObj.inventory["itm"+(j-22)] = fetchItem(c[j]);
+				for(var k = 23; k < 28; k++)
+					currObj.inventory["itm"+(k-22)] = fetchItem(c[k]);
 
-				characters[i] = currObj;
+				characters["char_" + i] = currObj;
 			}
 		}
+
+		updateProgressBar();
 	};
 
 	function fetchClass(char, affl, cName){
@@ -341,7 +344,7 @@ app.service('DataService', ['$rootScope', function ($rootScope) {
     
     function updateProgressBar(){
 		if(progress < 100){
-			progress = progress + 7.7; //13 calls
+			progress = progress + 10; //10 calls
     		$rootScope.$broadcast('loading-bar-updated', progress);
 		}
     };

@@ -49,6 +49,10 @@ app.controller('AuthCtrl', ['$scope', '$location', '$interval', 'DataService', f
 					$scope.loadingText = quotes[Math.floor((Math.random() * quotes.length) + 1)];
 				}
 
+				//Display loading bar
+				authorizeDiv.style.display = "none";
+				loadingDiv.style.display = "inline";
+
 				DataService.setMap(url);
 				DataService.loadMapData(type);
 			});
