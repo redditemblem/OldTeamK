@@ -182,8 +182,34 @@ app.service('DataService', ['$rootScope', function ($rootScope) {
 					'skills': {},
 					'inventory': {},
 					'status': fetchStatus(c[29]),
+					'moved' : c[31],
+					'position' : c[32],
+					'weaponRanks' : {
+						'wpn1' : {
+							'class': c[38],
+							'rank': c[34],
+							'exp': c[39]
+						},
+						'wpn2' : {
+							'class': c[40],
+							'rank': c[35],
+							'exp': c[41]
+						},
+						'wpn3' : {
+							'class': c[42],
+							'rank': c[36],
+							'exp': c[43]
+						}
+					},
+					'exp' : c[47]
 				};
 				
+				for(var i = 18; i < 23; i++)
+					currObj.skills["skl"+(i-17)] = fetchSkill(c[i]);
+
+				for(var j = 23; j < 28; j++)
+					currObj.inventory["itm"+(j-22)] = fetchItem(c[j]);
+
 				characters[i] = currObj;
 			}
 		}
@@ -230,6 +256,32 @@ app.service('DataService', ['$rootScope', function ($rootScope) {
 		}
 	};
 
+	function fetchSkill(skill){
+		var s = findSkill(skill);
+		return {
+			'name' : s[0],
+			'type' : s[1],
+			'trigger' : s[2],
+			'desc' : s[4]
+		};
+	};
+
+	function fetchItem(item){
+		var i = findItem(item);
+		return{
+			'name' : i[0],
+			'class' : i[1],
+			'rank' : i[2],
+			'might' : i[4],
+			'hit' : i[5],
+			'crit' : i[6],
+			'weight' : i[7],
+			'range' : i[8],
+			'effect' : i[9],
+			'desc' : i[10]
+		};
+	};
+
 	//\\//\\//\\//\\//\\
 	// FIND FUNCTIONS \\
 	//\\//\\//\\//\\//\\
@@ -254,6 +306,33 @@ app.service('DataService', ['$rootScope', function ($rootScope) {
 				return statusIndex[i];
 		
 		return [name, "", "This status could not be located.", "-", "-"];
+	};
+
+	function findSkill(name){
+		if(name == undefined || name.length == 0)
+			return ["", "", "", "", ""];
+
+		for(var i = 0; i < skillIndex.length; i++)
+            if(skillIndex[i][0] == name)
+                return skillIndex[i];
+
+        return [skill, ,"???","???", "?", "Skill data could not be found."];
+	};
+
+	function findItem(name){
+		if(name == undefined || name.length == 0)
+    		return ["", "Unknown", "-", "-", "-", "-", "-", "-", "-", "-|-", "Could not locate item. Please contact Deallocate"];
+    	
+    	//Remove parenthesis from end of name
+    	if(name.indexOf("(") != -1)
+    		name = name.substring(0,name.indexOf("(")-1);
+    	
+    	//Locate item
+    	for(var i = 0; i < itemIndex.length; i++)
+    		if(itemIndex[i][0] == name)
+    			return itemIndex[i];
+
+    	return [name, "Unknown", "-", "-", "-", "-", "-", "-", "-", "-|-", "Could not locate item. Please contact Deallocate"];
 	};
 
 	//\\//\\//\\//\\//\\//
