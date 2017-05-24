@@ -32,12 +32,20 @@ app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'DataService', f
     const weaponDescVerticalPos = ["10px", "35px", "60px", "85px", "105px"];
     const skillVerticalPos = ["10px", "45px", "80px", "115px", "150px", "185px", "220px"];
     const skillDescVerticalPos = ["5px", "15px", "22px", "29px", "36px", "43px", "50px", "57px", "63px"];
+	const weaknessIconHorzPos = ["151px", "171px", "151px", "171px"];
+	const weaknessIconVerticalPos = ["5px", "5px", "25px", "25px"];
     
     //Color constants
-	const DEFAULT_NAMETAG_COLOR = "#4a5d23";
     const STAT_DEFAULT_COLOR = "#E5C68D";
     const STAT_BUFF_COLOR = "#42adf4";
     const STAT_DEBUFF_COLOR = "#960000";
+	const COLOR_RED = "#E01616";
+	const COLOR_WHITE = "#FFFFFF";
+	const COLOR_ORANGE = "#FF6600";
+	const COLOR_PINK = "#E900E9";
+	const COLOR_PURPLE = "#9D009D";
+	const COLOR_GREEN = "#089000";
+	const COLOR_BLUE = "#3850e0";
     
     //Reroutes the user if they haven't logged into the app
     //Loads data from the DataService if they have
@@ -272,13 +280,8 @@ app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'DataService', f
     $scope.fetchWpnDescVerticalPos = function(index){ return weaponDescVerticalPos[index]; };
     $scope.fetchSklVerticalPos = function(index){ return skillVerticalPos[index]; };
     $scope.fetchSklDescVerticalPos = function(index){ return skillDescVerticalPos[index]; };
-    
-    $scope.fetchESklHorzPos = function(index){ return eSkillHorzPos[index]; };
-    $scope.fetchEStatVerticalPos = function(index){ return eStatVerticalPos[index]; };
-    $scope.fetchEWeaponVerticalPos = function(index){ return eWeaponVerticalPos[index]; };
-    $scope.fetchEWpnRankHorzPos = function(index){ return eWpnRankHorzPos[index]; };
-    $scope.fetchESklDescHorzPos = function(index){ return eSklDescHorzPos[index]; };
-    $scope.fetchEWpnDescVerticalPos = function(index){ return eWpnDescVerticalPos[index]; };
+	$scope.fetchWeaknessHorzPos = function(index){ return weaknessIconHorzPos[index]; };
+	$scope.fetchWeaknessVerticalPos = function(index){ return weaknessIconVerticalPos[index]; };
     
     //***********************\\
     // FUNCTIONS FOR STAT    \\
@@ -348,9 +351,108 @@ app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'DataService', f
     	return total - (debuff + weaponBuff + pairUp);
     };
 
-	$scope.getStatus = function(status, turnsLeft){
+	$scope.calcAttack = function(cIndex){
+		var c = $scope.charaData[cIndex];
+		if(c.atk != undefined) return c.atk;
+
+		var equippedWpn = c.inventory.itm1;
+		var weaponClass = equippedWpn.class;
+		var wpnRank1 = c.weaponRanks.wpn1;
+		var wpnRank2 = c.weaponRanks.wpn2;
+		var wpnRank3 = c.weaponRanks.wpn3;
+
+    	if(equippedWpn.name == "-" || equippedWpn.name == ""){ c.atk = "-"; return c.atk; }
+    	var power = parseInt(equippedWpn.might);
+    	
+    	//S-rank power boost
+    	if(wpnRank1.class == weaponClass && parseInt(wpnRank1.exp) >= 150) power += 1;
+    	if(wpnRank2.class == weaponClass && parseInt(wpnRank2.exp) >= 150) power += 1;
+    	if(wpnRank3.class == weaponClass && parseInt(wpnRank3.exp) >= 150) power += 1;
+    	
+    	var effect = parseInt(equippedWpn.effect);
+		var magicalWeapons = "TomeTalismanRelicStaff";
+    	if(effect == 28 || effect == 30 || magicalWeapons.indexOf(weaponClass) != -1){ c.atk = power + parseInt(c.Str); }
+    	if(effect == 29 || effect == 31){ c.atk = power + parseInt(c.Mag); }
+		return c.atk;
+    };
+
+	$scope.calcHit = function(cIndex){
+		var c = $scope.charaData[cIndex];
+		if(c.hit != undefined) return c.hit;
+
+		var equippedWpn = c.inventory.itm1;
+		var weaponClass = equippedWpn.class;
+		var wpnRank1 = c.weaponRanks.wpn1;
+		var wpnRank2 = c.weaponRanks.wpn2;
+		var wpnRank3 = c.weaponRanks.wpn3;
+		
+    	if(equippedWpn.name == "-" || equippedWpn.name == ""){ c.hit = "-"; return c.hit; }
+    	var hit = parseInt(equippedWpn.hit);
+    	
+    	//S-rank hit boost
+    	if(wpnRank1.class == weaponClass && parseInt(wpnRank1.exp) >= 150) hit += 15;
+    	if(wpnRank2.class == weaponClass && parseInt(wpnRank2.exp) >= 150) hit += 15;
+    	if(wpnRank3.class == weaponClass && parseInt(wpnRank3.exp) >= 150) hit += 15;
+    	
+    	c.hit = Math.floor(hit + parseInt(c.Skl)*2 + parseInt(c.Lck)/2);
+		return c.hit;
+	};
+
+	$scope.calcCrit = function(cIndex){
+		var c = $scope.charaData[cIndex];
+		if(c.crit != undefined) return c.crit;
+
+		var equippedWpn = c.inventory.itm1;
+    	if(equippedWpn.name == "-" || equippedWpn.name == "" || equippedWpn.crit == "-" || equippedWpn.crit == ""){ c.crit = "-"; return c.crit; }
+		
+    	var crit = parseInt(equippedWpn.crit);
+    	var cls = c.class.name;
+    	
+    	if(cls=="Assassin"||cls=="Rogue"||cls=="Shepherd") crit += 10;
+    	else if(cls=="Berserker"||cls=="Sniper"||cls=="Swordsmaster"||cls=="Halberdier"||cls=="Savior") crit += 15;
+    	
+    	c.crit = Math.floor(crit + parseInt(c.Skl)/2);
+		return c.crit;
+	};
+
+	$scope.calcAvo = function(cIndex){
+		var c = $scope.charaData[cIndex];
+		if(c.avo != undefined) return c.avo;
+
+		var equippedWpn = c.inventory.itm1;
+		var speed = parseInt(c.Spd);
+    	var loss = equippedWpn.weight;
+    	
+    	if(loss == "-" || loss == "") loss = 0;
+    	else loss = parseInt(loss);
+    	
+    	if (c.Con != "-" && c.Con != undefined && c.Con != "") loss -= parseInt(c.Con);
+    	if(loss < 0) loss = 0;
+    	speed -= loss;
+    	
+		//TODO: Terrain bonus
+    	var avoBonus = 0; //$scope.enemyData[index][33][1];
+    	//if(avoBonus == "-") avoBonus = 0;
+    	//else avoBonus = parseInt(avoBonus);
+    	
+    	c.avo = speed*2 + parseInt(c.Lck) + avoBonus;
+		return c.avo;
+	};
+
+	$scope.getStatusName = function(name){
+		if(name == "None") return "Normal Status";
+		else return name;
+	}	
+
+	$scope.getStatusIcon = function(status, turnsLeft){
+		if(status == "None") return "";
 		if(status == "Doomed") return "IMG/Status/s_" + status + turnsLeft +".png";
 		else return "IMG/Status/s_" + status + ".png";
+	};
+
+	$scope.getWeaknessIcon = function(w){
+		if(w == "" || w == undefined || w == "NPC-only") return "";
+    	else return "IMG/Weakness/weak_" + w + ".png";
 	};
     
     $scope.validSkill = function(skill){
@@ -482,12 +584,27 @@ app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'DataService', f
     	else return "25px";
     };
 
-	$scope.determineNametagColor = function(char){
-		if(char.indexOf("char_") != -1) return DEFAULT_NAMETAG_COLOR;
-		
-		if($scope.charaData[char].affiliation == "") return DEFAULT_NAMETAG_COLOR;
-		else return $scope.charaData[char].affiliation;
-	};
+	$scope.determineInfoColor = function(aff){
+    	if(aff == "Immolan Guard" || aff == "Gershom" || aff == "Guile" || aff == "Community (Human)" || aff == "Community (Reaper)"){
+    		return COLOR_RED;
+    	}
+    	else if(aff == "Environment"){
+    		return COLOR_WHITE;
+    	}
+    	else if(aff == "Belenus" || aff == "Self"){
+    		return COLOR_ORANGE;
+    	}
+    	else if(aff.indexOf("Reaper") != -1 || aff == "Lettie"){
+    		return COLOR_PINK;
+    	}
+    	else if(aff == "Loveless"){
+    		return COLOR_PURPLE;
+    	}
+    	else if(aff == "Whimsy" || aff == "Cupidity" || aff == "Neutral" || aff == "Prisoner"){
+    		return COLOR_GREEN;
+    	}
+		return COLOR_BLUE;
+    };
     
     //***************************\\
     // MOUSEOVER/MOUSEOUT EVENTS \\
@@ -505,17 +622,17 @@ app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'DataService', f
     $scope.statHoverOut = function(char, stat){ $scope[char + "hov_" + stat] = false; };
     $scope.statHoverOn = function(char, stat){ return $scope[char + "hov_" + stat] == true; };
     
-    $scope.pairUpHoverIn = function(char){ $scope[char + "pair"] = true; };
-    $scope.pairUpHoverOut = function(char){ $scope[char + "pair"] = false; };
-    $scope.pairUpHoverOn = function(char){ return $scope[char + "pair"] == true; };
+    $scope.nameHoverIn = function(char){ $scope[char + "name"] = true; };
+    $scope.nameHoverOut = function(char){ $scope[char + "name"] = false; };
+    $scope.nameHoverOn = function(char){ return $scope[char + "name"] == true; };
 
 	$scope.statusHoverIn = function(char){ $scope[char + "status"] = true; };
 	$scope.statusHoverOut = function(char){ $scope[char + "status"] = false; };
 	$scope.statusHoverOn = function(char){ return $scope[char + "status"] == true; };
 
-	$scope.traitHoverIn = function(char){ $scope[char + "trait"] = true; };
-	$scope.traitHoverOut = function(char){ $scope[char + "trait"] = false; };
-	$scope.traitHoverOn = function(char){ return $scope[char + "trait"] == true; };
+	$scope.goldHoverIn = function(char){ $scope[char + "gold"] = true; };
+	$scope.goldHoverOut = function(char){ $scope[char + "gold"] = false; };
+	$scope.goldHoverOn = function(char){ return $scope[char + "gold"] == true; };
     
     //*************************\\
     // SUPPORT FOR DRAGABILITY \\

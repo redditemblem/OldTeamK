@@ -202,7 +202,8 @@ app.service('DataService', ['$rootScope', function ($rootScope) {
 							'exp': c[43]
 						}
 					},
-					'exp' : c[47]
+					'exp' : c[47],
+					'blurb' : c[104] != undefined ? c[104] : ""
 				};
 				
 				for(var j = 18; j < 23; j++)
@@ -221,31 +222,33 @@ app.service('DataService', ['$rootScope', function ($rootScope) {
 	function fetchClass(char, affl, cName){
 		var c = findClass(cName);
 
-		var addWeaknesses = [];
+		var weaknesses = c[2].split(",");
 		if(affl != undefined && char != undefined){
 			if(affl.indexOf("Reaper") != -1 || char == "Fallacy" || char == "Dolour")
-				addWeaknesses.push("Reaper");
+				weaknesses.push("Reaper");
 			if(affl == "Loveless")
-				addWeaknesses.push("Loveless");
+				weaknesses.push("Loveless");
 			if(affl == "Lettie")
-				addWeaknesses.push("Cloud");
+				weaknesses.push("Cloud");
 			if(char == "Ravager")
-				addWeaknesses.push("Beast");
+				weaknesses.push("Beast");
 			if(char == "Devastator")
-				addWeaknesses.push("Reptile");
+				weaknesses.push("Reptile");
 			if(char == "Eviscerator")
-				addWeaknesses.push("Flying");
+				weaknesses.push("Flying");
 		}
 
-		for(var i = 0; i < addWeaknesses.length; i++){
-			if(c[2].length > 0) c[2] += ", ";
-			c[2] += addWeaknesses[i];
+		var weakObj = {};
+		for(var i = 0; i < 4; i++){
+			if(weaknesses[i] == "NPC-only") weaknesses.splice(i,1);
+			if(weaknesses.length > i) weakObj["weak_"+i] = weaknesses[i].trim();
+			else weakObj["weak_"+i] = "";
 		}
 
 		return {
 			'name' : c[0],
 			'desc' : c[1],
-			'weaknesses' : c[2]
+			'weaknesses' : weakObj
 		}
 	};
 
@@ -281,7 +284,8 @@ app.service('DataService', ['$rootScope', function ($rootScope) {
 			'weight' : i[7],
 			'range' : i[8],
 			'effect' : i[9],
-			'desc' : i[10]
+			'desc' : i[10],
+			'effect' : i[12]
 		};
 	};
 
@@ -324,7 +328,7 @@ app.service('DataService', ['$rootScope', function ($rootScope) {
 
 	function findItem(name){
 		if(name == undefined || name.length == 0)
-    		return ["", "Unknown", "-", "-", "-", "-", "-", "-", "-", "-|-", "Could not locate item. Please contact Deallocate"];
+    		return ["", "Unknown", "-", "-", "-", "-", "-", "-", "-", "-|-", "Could not locate item. Please contact Deallocate", "", ""];
     	
     	//Remove parenthesis from end of name
     	if(name.indexOf("(") != -1)
@@ -335,7 +339,7 @@ app.service('DataService', ['$rootScope', function ($rootScope) {
     		if(itemIndex[i][0] == name)
     			return itemIndex[i];
 
-    	return [name, "Unknown", "-", "-", "-", "-", "-", "-", "-", "-|-", "Could not locate item. Please contact Deallocate"];
+    	return [name, "Unknown", "-", "-", "-", "-", "-", "-", "-", "-|-", "Could not locate item. Please contact Deallocate", "", ""];
 	};
 
 	//\\//\\//\\//\\//\\//

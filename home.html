@@ -41,38 +41,34 @@
 			<div class="charDiv" class="mapCharOffsetNone">
 				<img ng-src="{{char.spriteUrl}}" class="mapCharCentered" ng-class="{'grayscale' : hasMoved(char.moved)}">
 				<img ng-src="{{getEnemyNum(char.name)}}" class="enemyNum"> <!--style="top:0px"-->
-				<img ng-src="{{getStatus(char.status.name, char.turnsLeft)}}" class="enemyNum">
+				<img ng-src="{{getStatusIcon(char.status.name, char.turnsLeft)}}" class="enemyNum">
 			</div>
 			<div ng-if="validHP(char.currHp, char.maxHp)">
 				<div class="healthBarBack"></div>
 				<div class="healthBarFront" ng-style="{width:(1+(enemy[5]/enemy[4])*12)+'px','background-color': determineHPColor($index)}"></div>
 				<div class="healthBarBorder"></div>
 			</div>
-			<!--<div id= class="pairUpIcon">
-				<img src="IMG/shield_pairup.png">
-			</div>-->
+			<div id="{{cIndex}}_pairIcon" class="pairUpIcon" style="display:none"><img src="IMG/shield_pairup.png"></div>
 		</div>
 	</div>
 
 	<!--ENEMY INFO BOX-->
-	<div ng-repeat="enemy in enemyData" class="enemyInfo" draggable="true" ng-style="{'background-color': determineInfoColor($index)}" ng-show="checkToggle($index)" id="enemy_{{$index}}_box">
+	<div id="{{cIndex}}_box" ng-repeat="(cIndex,char) in charaData" class="enemyInfo" draggable="true" ng-style="{'background-color': determineInfoColor(char.affiliation)}" ng-show="checkCharToggle(cIndex)">
 		<!--Buttons-->
 		<div class="absolutePos olive enemyBar">
 			<!--Close button-->
-			<div class="enemyBarButton hoverImage" title="Close" ng-click="toggleView($index)" style="right:2px">
+			<div class="enemyBarButton hoverImage" title="Close" ng-click="removeData(cIndex)" style="right:2px">
 				<img src="IMG/close.png">
 			</div>
 			<!--Pair-Up button-->
-			<div class="enemyBarButton hoverImage" ng-if="enemyIsPaired($index)" title="Close" ng-click="toggleEnemyPair($index)" title="View Paired Unit" style="right:20px">
+			<div id="{{cIndex}}_pairButton" class="enemyBarButton hoverImage" ng-click="findPairUpChar(cIndex)" title="View Paired Unit" style="right:20px">
 				<img src="IMG/switchpairup.png">
 			</div>
 		</div>
 		<!--Name-->
-		<div class="infoElement darkTan tanText enemyNamePos hoverStatus" ng-mouseenter="Name=true" ng-mouseleave="Name=false">
-			<span class="boldText popOutText popOutHeader" >{{enemy[0]}}</span>
-			<!--   <span class="popOutText popOutHeader"  style="right:0px">Lv. {{enemy[16]}} </span> -->
-			
-			<span class="popOutLevel" style="top:21px">Lv. {{enemy[16]}}  {{enemy[3][0]}}</span>
+		<div class="infoElement darkTan tanText enemyNamePos hoverStatus" ng-mouseover="nameHoverIn(cIndex)" ng-mouseleave="nameHoverOut(cIndex)">
+			<span class="boldText popOutText popOutHeader" >{{char.name}}</span>
+			<span class="popOutLevel" style="top:21px">Lv. {{char.lvl}}  {{char.class.name}}</span>
 		</div>
 		
 		<!--Battle Stats-->
@@ -81,35 +77,33 @@
 			<span class="enemyBattleLabel" style="margin-left:115px; margin-top:5px">Hit</span>
 			<span class="enemyBattleLabel" style="margin-left:11px; margin-top:25px">Crit</span>
 			<span class="enemyBattleLabel" style="margin-left:112px; margin-top:25px">Avo</span>
-			<span class="indentedBattleStat" style="margin-left:42px; margin-top:2px">{{getEnemyAtt($index)}}</span>
-			<span class="indentedBattleStat" style="margin-left:150px; margin-top:2px">{{getEnemyHit($index)}}</span>
-			<span class="indentedBattleStat" style="margin-left:42px; margin-top:22px">{{getEnemyCrit($index)}}</span>
-			<span class="indentedBattleStat" style="margin-left:150px; margin-top:22px">{{getEnemyAvo($index)}}</span>
+			<span class="indentedBattleStat" style="margin-left:42px; margin-top:2px">{{calcAttack(cIndex)}}</span>
+			<span class="indentedBattleStat" style="margin-left:150px; margin-top:2px">{{calcHit(cIndex)}}</span>
+			<span class="indentedBattleStat" style="margin-left:42px; margin-top:22px">{{calcCrit(cIndex)}}</span>
+			<span class="indentedBattleStat" style="margin-left:150px; margin-top:22px">{{calcAvo(cIndex)}}</span>
 		</div>
 		
 		<!--Gold-->
-		<div class="infoElement darkTan tanText enemyGoldPos hoverStatus" ng-mouseenter="GoldOver=true" ng-mouseleave="GoldOver=false">
+		<div class="infoElement darkTan tanText enemyGoldPos hoverStatus" ng-mouseover="goldHoverIn(cIndex)" ng-mouseleave="goldHoverOut(cIndex)">
 			<span class="enemyStatLabel">G</span>
-			<span class="indentedGold">{{enemy[15]}}</span>
+			<span class="indentedGold">{{char.gold}}</span>
 		</div>
 		
 		<!--Status-->
-		<div class="infoElement darkTan tanText enemyStatusPos hoverStatus" ng-mouseenter="StatusOver=true" ng-mouseleave="StatusOver=false">
-			<span class="enemyStatLabel">{{getEnemyStatusType($index)}}</span>
-			<span ng-if="enemyHasStatus($index)" class="indentedStatus">{{enemy[30]}}</span>
+		<div class="infoElement darkTan tanText enemyStatusPos hoverStatus" ng-mouseenter="statusHoverIn(cIndex)" ng-mouseleave="statusHoverOut(cIndex)">
+			<span class="enemyStatLabel">{{getStatusName(char.status.name)}}</span>
+			<span ng-if="enemyHasStatus($index)" class="indentedStatus">{{char.turnsLeft}}</span>
 		</div>
 		
-		<!--Terrain-->
+		<!--Terrain
 		<div class="infoElement darkTan tanText enemyTerrainPos hoverStatus" ng-mouseenter="TerrainOver=true" ng-mouseleave="TerrainOver=false">
 			<span class="enemyTerrainLabel">Terrain: {{enemy[33][0]}}</span>
-		</div>
+		</div>-->
 		
-		<!-- Weakness Icons -->
-		<span class="indentedEWeaknessIcon" title="{{enemyData[$index][3][2][0]}}" style="margin-left:151px; top:5px" ng-if="validWeakness($index,0)"><img ng-src="{{getWeakness($index,0)}}"/></span>
-		<span class="indentedEWeaknessIcon" title="{{enemyData[$index][3][2][1]}}" style="margin-left:171px; top:5px" ng-if="validWeakness($index,1)"><img ng-src="{{getWeakness($index,1)}}"/></span>
-		<span class="indentedEWeaknessIcon" title="{{enemyData[$index][3][2][2]}}" style="margin-left:151px; top:25px" ng-if="validWeakness($index,2)"><img ng-src="{{getWeakness($index,2)}}"/></span>
-		<span class="indentedEWeaknessIcon" title="{{enemyData[$index][3][2][3]}}" style="margin-left:171px; top:25px" ng-if="validWeakness($index,3)"><img ng-src="{{getWeakness($index,3)}}"/></span>
-		
+		<!--Weakness Icons-->
+		<span ng-repeat="w in char.class.weaknesses" class="indentedEWeaknessIcon" title="{{w}}" ng-style="{left: fetchWeaknessHorzPos($index), top: fetchWeaknessVerticalPos($index)}">
+			<img ng-src="{{getWeaknessIcon(w)}}"/>
+		</span>
 		
 		<!--Skill Gems-->
 		<div class="infoElement paleTan blackText hoverTan enemyGemPos" ng-mouseenter="Skill1=true" ng-mouseleave="Skill1=false" style="margin-top:96px">
@@ -238,11 +232,11 @@
 		</div>
 	
 		<!--Unit Name Info Boxes-->
-		<div ng-if="Name" class="infoElement green whiteText enemyBlurbPos" style="margin-top:5px">
-		<div class="popOutText popOutBlurb"><p><b>{{enemy[0]}}</b><br>
-		{{enemy[45][0]}}</p>
-		<p><b>{{enemy[3][0]}}</b><br>
-		{{enemy[3][1]}}</p></div>
+		<div ng-if="nameHoverOn(cIndex)" class="infoElement green whiteText enemyBlurbPos" style="margin-top:5px">
+			<div class="popOutText popOutBlurb"><p><b>{{char.name}}</b><br>
+			{{char.blurb}}</p>
+			<p><b>{{char.class.name}}</b><br>
+			{{char.class.desc}}</p></div>
 		</div>
 		
 		<!--Status Effect Info Boxes-->
