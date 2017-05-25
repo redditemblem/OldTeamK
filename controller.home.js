@@ -3,15 +3,15 @@ app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'DataService', f
 	$scope.rows = ["1"];
     $scope.columns = ["1"];
 	$scope.statsList = [
-	                ["Str", "Strength. Affects damage the unit deals with physical attacks.",    "215px", "200px"],
-	                ["Mag", "Magic. Affects damage the unit deals with magical attacks.",        "240px", "200px"],
-	                ["Skl", "Skill. Affects hit rate and the frequency of critical hits.",       "265px", "200px"],
-	                ["Spd", "Speed. Affects Avo. Unit strikes twice if 5 higher than opponent.", "290px", "200px"],
-	                ["Lck", "Luck. Has various effects. Lowers risk of enemy criticals.",        "215px", "315px"],
-	                ["Def", "Defense. Reduces damage from physical attacks.",                    "240px", "315px"],
-	                ["Res", "Resistance. Reduces damage from physical attacks.",                 "265px", "315px"],
-					["Mov", "Movement. Affects how many blocks a unit can move in a turn.",      "290px", "315px"],
-					["Con", "Constitution. Affects how much weight a unit can carry.", 			 "100px", "315px"]
+	                ["Str", "Strength. Affects damage the unit deals with physical attacks."],
+	                ["Mag", "Magic. Affects damage the unit deals with magical attacks."],
+	                ["Skl", "Skill. Affects hit rate and the frequency of critical hits."],
+	                ["Spd", "Speed. Affects Avo. Unit strikes twice if 5 higher than opponent."],
+	                ["Lck", "Luck. Has various effects. Lowers risk of enemy criticals."],
+	                ["Def", "Defense. Reduces damage from physical attacks."],
+	                ["Res", "Resistance. Reduces damage from physical attacks."],
+					//["Mov", "Movement. Affects how many blocks a unit can move in a turn."],
+					["Con", "Constitution. Affects how much weight a unit can carry."]
 	               ];
 	
 	//Interval timers
@@ -26,12 +26,12 @@ app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'DataService', f
     var numDefeat = 0;
 
     //Positioning constants
-    const statVerticalPos = ["10px", "39px", "68px", "97px", "126px", "155px", "184px"];
-    const weaponVerticalPos = ["10px", "45px", "80px", "115px", "150px"];
+    const statVerticalPos = ["29px", "53px", "77px", "101px", "125px", "149px", "173px", "197px"];
+    const weaponVerticalPos = ["5px", "34px", "63px", "92px", "121px"];
     const weaponRankHorzPos = ["15px", "85px", "155px"];
     const weaponDescVerticalPos = ["10px", "35px", "60px", "85px", "105px"];
-    const skillVerticalPos = ["10px", "45px", "80px", "115px", "150px", "185px", "220px"];
-    const skillDescVerticalPos = ["5px", "15px", "22px", "29px", "36px", "43px", "50px", "57px", "63px"];
+    const skillVerticalPos = ["96px", "121px", "146px", "171px", "196px"];
+    const skillDescVerticalPos = ["", "", "", "", ""];
 	const weaknessIconHorzPos = ["151px", "171px", "151px", "171px"];
 	const weaknessIconVerticalPos = ["5px", "5px", "25px", "25px"];
     
@@ -39,6 +39,7 @@ app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'DataService', f
     const STAT_DEFAULT_COLOR = "#E5C68D";
     const STAT_BUFF_COLOR = "#42adf4";
     const STAT_DEBUFF_COLOR = "#960000";
+	const ITEM_DROP_COLOR = "#008000";
 	const COLOR_RED = "#E01616";
 	const COLOR_WHITE = "#FFFFFF";
 	const COLOR_ORANGE = "#FF6600";
@@ -46,6 +47,7 @@ app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'DataService', f
 	const COLOR_PURPLE = "#9D009D";
 	const COLOR_GREEN = "#089000";
 	const COLOR_BLUE = "#3850e0";
+	const COLOR_BLACK = "#000000";
     
     //Reroutes the user if they haven't logged into the app
     //Loads data from the DataService if they have
@@ -526,7 +528,7 @@ app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'DataService', f
     //Checks to see if the weapon name in the passed slot is null
     //Version for characters
     $scope.validWeapon = function(weaponName){
-    	if(weaponName != "-" && weaponName != "- (-)" && weaponName != "") return true;
+    	if(weaponName.length > 0) return true;
     	else return false;
     };
     
@@ -534,7 +536,7 @@ app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'DataService', f
     //Version for characters
     $scope.getWeaponClassIcon = function(type){
     	type = type.toLowerCase();
-    	return "IMG/type_" + type + ".png";
+    	return "IMG/Items/type_" + type + ".png";
     };
     
     //Checks if the passed "type" is listed in the effectiveness column of a character's weapon
@@ -566,10 +568,15 @@ app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'DataService', f
     };
     
     $scope.formatWeaponName = function(name){
-    	if(name.indexOf("(") == -1) return name;
-    	else return name.substring(0, name.indexOf("(")-1);
+    	if(name.indexOf("(D)") == -1) return name;
+    	else return name.substring(0, name.indexOf("(D)")-1);
     };
     
+	$scope.determineItemColor = function(name){
+    	if(name.indexOf("(D)")!=-1) return ITEM_DROP_COLOR;
+    	return COLOR_BLACK;
+    };
+
     $scope.hasWeaponRank = function(rank){
     	return rank != "-";
     };

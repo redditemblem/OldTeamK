@@ -105,96 +105,32 @@
 			<img ng-src="{{getWeaknessIcon(w)}}"/>
 		</span>
 		
-		<!--Skill Gems-->
-		<div class="infoElement paleTan blackText hoverTan enemyGemPos" ng-mouseenter="Skill1=true" ng-mouseleave="Skill1=false" style="margin-top:96px">
-			<span ng-if="hasSkill($index, 18)" class="indentedEnemySkill">{{enemy[18][0]}}</span>
-		</div>
-		<div class="infoElement paleTan blackText hoverTan enemyGemPos" ng-mouseenter="Skill2=true" ng-mouseleave="Skill2=false" style="margin-top:121px">
-			<span ng-if="hasSkill($index, 19)" class="indentedEnemySkill">{{enemy[19][0]}}</span>
-		</div>
-		<div class="infoElement paleTan blackText hoverTan enemyGemPos" ng-mouseenter="Skill3=true" ng-mouseleave="Skill3=false" style="margin-top:146px">
-			<span ng-if="hasSkill($index, 20)" class="indentedEnemySkill">{{enemy[20][0]}}</span>
-		</div>
-		<div class="infoElement paleTan blackText hoverTan enemyGemPos" ng-mouseenter="Skill4=true" ng-mouseleave="Skill4=false" style="margin-top:171px">
-			<span ng-if="hasSkill($index, 21)" class="indentedEnemySkill">{{enemy[21][0]}}</span>
-		</div>
-		<div class="infoElement paleTan blackText hoverTan enemyGemPos" ng-mouseenter="Skill5=true" ng-mouseleave="Skill5=false" style="margin-top:196px">
-			<span ng-if="hasSkill($index, 22)" class="indentedEnemySkill">{{enemy[22][0]}}</span>
+		<!--Skills-->
+		<div ng-repeat="skill in char.skills" class="infoElement paleTan blackText hoverTan enemyGemPos" ng-mouseenter="skillHoverIn(cIndex, $index)" ng-mouseleave="skillHoverOut(cIndex, $index)" ng-style="{top: fetchSklVerticalPos($index)}">
+			<span ng-if="validSkill(skill.name)" class="indentedEnemySkill">{{skill.name}}</span>
 		</div>
 		
 		<!--Stats Column-->
-		
 		<!--HP-->
-		<div class="infoElement darkerTan tanText enemyStatPos" ng-mouseenter="showEStr=true" ng-mouseleave="showEStr=false" style="margin-top:5px;">
+		<div class="infoElement darkerTan tanText enemyStatPos" ng-mouseenter="statHoverIn(cIndex, 'HP')" ng-mouseleave="statHoverOut(cIndex, 'HP')" style="top:5px;">
 			<span class="enemyStatLabel">HP</span>
-			<span class="indentedEnemyHPStat">{{enemy[5]}}/{{enemy[4]}}</span>
+			<span class="indentedEnemyHPStat">{{char.currHp}}/{{char.maxHp}}</span>
 		</div>
-		<!--Strength-->
-		<div class="infoElement darkerTan tanText enemyStatPos" ng-mouseenter="showEStr=true" ng-mouseleave="showEStr=false" style="margin-top:29px">
-			<span class="enemyStatLabel">Str</span>
-			<span class="indentedEnemyStat" ng-style="{color: determineEnemyStatColor('str', $index)}">{{enemy[6]}}</span>
-		</div>
-		<!--Magic-->
-		<div class="infoElement darkerTan tanText enemyStatPos" ng-mouseenter="showEMag=true" ng-mouseleave="showEMag=false" style="margin-top:53px">
-			<span class="enemyStatLabel">Mag</span>
-			<span class="indentedEnemyStat" ng-style="{color: determineEnemyStatColor('mag', $index)}">{{enemy[7]}}</span>
-		</div>
-		<!--Skill-->
-		<div class="infoElement darkerTan tanText enemyStatPos" ng-mouseenter="showESkl=true" ng-mouseleave="showESkl=false" style="margin-top:77px">
-			<span class="enemyStatLabel">Skl</span>
-			<span class="indentedEnemyStat" ng-style="{color: determineEnemyStatColor('skl', $index)}">{{enemy[8]}}</span>
-		</div>
-		<!--Speed-->
-		<div class="infoElement darkerTan tanText enemyStatPos" ng-mouseenter="showESpd=true" ng-mouseleave="showESpd=false" style="margin-top:101px">
-			<span class="enemyStatLabel">Spd</span>
-			<span class="indentedEnemyStat" ng-style="{color: determineEnemyStatColor('spd', $index)}">{{enemy[9]}}</span>
-		</div>
-		<!--Luck-->
-		<div class="infoElement darkerTan tanText enemyStatPos" ng-mouseenter="showELck=true" ng-mouseleave="showELck=false" style="margin-top:125px">
-			<span class="enemyStatLabel">Lck</span>
-			<span class="indentedEnemyStat" ng-style="{color: determineEnemyStatColor('lck', $index)}">{{enemy[10]}}</span>
-		</div>
-		<!--Defense-->
-		<div class="infoElement darkerTan tanText enemyStatPos" ng-mouseenter="showEDef=true" ng-mouseleave="showEDef=false" style="margin-top:149px">
-			<span class="enemyStatLabel">Def</span>
-			<span class="indentedEnemyStat" ng-style="{color: determineEnemyStatColor('def', $index)}">{{enemy[11]}}</span>
-		</div>
-		<!--Resistance-->
-		<div class="infoElement darkerTan tanText enemyStatPos" ng-mouseenter="showERes=true" ng-mouseleave="showERes=false" style="margin-top:173px">
-			<span class="enemyStatLabel">Res</span>
-			<span class="indentedEnemyStat" ng-style="{color: determineEnemyStatColor('res', $index)}">{{enemy[12]}}</span>
-		</div>
-		<!--Constitution-->
-		<div class="infoElement darkerTan tanText enemyStatPos" ng-mouseenter="showERes=true" ng-mouseleave="showERes=false" style="margin-top:197px">
-			<span class="enemyStatLabel">Con</span>
-			<span class="indentedEnemyStat" ng-style="{color: determineEnemyStatColor('res', $index)}">{{enemy[13]}}</span>
+		<!--Other Stats-->
+		<div ng-repeat="stat in statsList" class="infoElement darkerTan tanText enemyStatPos" ng-mouseenter="statHoverIn(cIndex, stat[0])" ng-mouseleave="statHoverOut(cIndex, stat[0])" ng-style="{top: fetchStatVerticalPos($index)}">
+			<span class="enemyStatLabel">{{stat[0]}}</span>
+			<span class="indentedEnemyStat">{{char[stat[0]]}}</span>
 		</div>
 		<!--Movement-->
 		<div class="infoElement darkerTan tanText enemyMovPos" style="margin-left:280px;width:79px">
 			<span class="enemyStatLabel">Mov</span>
-			<span class="indentedExp">{{enemy[14]}}</span>
+			<span class="indentedExp">{{char.Mov}}</span>
 		</div>
 		
 		<!--Item Inventory-->
-		<div class="infoElement paleTan redText hoverTan enemyInventoryBoxPos" ng-mouseenter="eWpn1=true" ng-mouseleave="eWpn1=false" style="margin-top:5px">
-			<span class="indentedEWeaponIcon" ng-if="validEnemyWeapon($index,23)"><img ng-src="{{getEnemyWeaponClassIcon($index,23)}}"/></span>
-			<span class="indentedEnemyItem" ng-style="{color: determineItemColor($index,23)}">{{filterItemName2($index, 23)}}</span>
-		</div>
-		<div class="infoElement paleTan redText hoverTan enemyInventoryBoxPos" ng-mouseenter="eWpn2=true" ng-mouseleave="eWpn2=false" style="margin-top:34px">
-			<span class="indentedEWeaponIcon" ng-if="validEnemyWeapon($index,24)"><img ng-src="{{getEnemyWeaponClassIcon($index,24)}}"/></span>
-			<span class="indentedEnemyItem" ng-style="{color: determineItemColor($index,24)}">{{filterItemName2($index, 24)}}</span>
-		</div>
-		<div class="infoElement paleTan redText hoverTan enemyInventoryBoxPos" ng-mouseenter="eWpn3=true" ng-mouseleave="eWpn3=false" style="margin-top:63px">
-			<span class="indentedEWeaponIcon" ng-if="validEnemyWeapon($index,25)"><img ng-src="{{getEnemyWeaponClassIcon($index,25)}}"/></span>
-			<span class="indentedEnemyItem" ng-style="{color: determineItemColor($index,25)}">{{filterItemName2($index, 25)}}</span>
-		</div>
-		<div class="infoElement paleTan redText hoverTan enemyInventoryBoxPos" ng-mouseenter="eWpn4=true" ng-mouseleave="eWpn4=false" style="margin-top:92px">
-			<span class="indentedEWeaponIcon" ng-if="validEnemyWeapon($index,26)"><img ng-src="{{getEnemyWeaponClassIcon($index,26)}}"/></span>
-			<span class="indentedEnemyItem" ng-style="{color: determineItemColor($index,26)}">{{filterItemName2($index, 26)}}</span>
-		</div>
-		<div class="infoElement paleTan redText hoverTan enemyInventoryBoxPos" ng-mouseenter="eWpn5=true" ng-mouseleave="eWpn5=false" style="margin-top:121px">
-			<span class="indentedEWeaponIcon" ng-if="validEnemyWeapon($index,27)"><img ng-src="{{getEnemyWeaponClassIcon($index,27)}}"/></span>
-			<span class="indentedEnemyItem" ng-style="{color: determineItemColor($index,27)}">{{filterItemName2($index, 27)}}</span>
+		<div ng-repeat="item in char.inventory" class="infoElement paleTan redText hoverTan enemyInventoryBoxPos" ng-mouseenter="weaponHoverIn(cIndex, $index)" ng-mouseleave="weaponHoverOut(cIndex, $index)" ng-style="{top: fetchWeaponVerticalPos($index)}">
+			<span class="indentedEWeaponIcon" ng-if="validWeapon(item.name)"><img ng-src="{{getWeaponClassIcon(item.class)}}"/></span>
+			<span class="indentedEnemyItem" ng-style="{color: determineItemColor($index,23)}">{{formatWeaponName(item.name)}}</span>
 		</div>
 		
 		<!--Experience-->
