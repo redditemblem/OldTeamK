@@ -202,7 +202,6 @@ app.service('DataService', ['$rootScope', function ($rootScope) {
 							'exp': c[43]
 						}
 					},
-					'exp' : c[47],
 					'blurb' : c[104] != undefined ? c[104] : ""
 				};
 				
@@ -285,6 +284,7 @@ app.service('DataService', ['$rootScope', function ($rootScope) {
 			'range' : i[8],
 			'effect' : i[9],
 			'desc' : i[10],
+			'notes' : i[11],
 			'effect' : i[12]
 		};
 	};

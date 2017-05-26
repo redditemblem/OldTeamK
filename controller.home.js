@@ -28,10 +28,10 @@ app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'DataService', f
     //Positioning constants
     const statVerticalPos = ["29px", "53px", "77px", "101px", "125px", "149px", "173px", "197px"];
     const weaponVerticalPos = ["5px", "34px", "63px", "92px", "121px"];
-    const weaponRankHorzPos = ["15px", "85px", "155px"];
-    const weaponDescVerticalPos = ["10px", "35px", "60px", "85px", "105px"];
+    const weaponDescVerticalPos = ["5px", "5px", "5px", "5px", "5px"];
+    const weaponRankHorzPos = ["368px", "404px", "440px"];
     const skillVerticalPos = ["96px", "121px", "146px", "171px", "196px"];
-    const skillDescVerticalPos = ["", "", "", "", ""];
+    const skillDescVerticalPos = ["96px", "96px", "96px", "96px", "96px"];
 	const weaknessIconHorzPos = ["151px", "171px", "151px", "171px"];
 	const weaknessIconVerticalPos = ["5px", "5px", "25px", "25px"];
     
@@ -452,6 +452,10 @@ app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'DataService', f
 		else return "IMG/Status/s_" + status + ".png";
 	};
 
+	$scope.getTurnsLeft = function(turns){
+		return parseInt(turns);
+	};
+
 	$scope.getWeaknessIcon = function(w){
 		if(w == "" || w == undefined || w == "NPC-only") return "";
     	else return "IMG/Weakness/weak_" + w + ".png";
@@ -460,6 +464,15 @@ app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'DataService', f
     $scope.validSkill = function(skill){
     	return skill != "" && skill != "None";
     };
+
+	$scope.validExp = function(exp){
+		return exp != "-";
+	};
+
+	$scope.calcExpBarPercent = function(lvl, exp){
+		if(lvl == "40") return "73px";
+    	return ((parseInt(exp)/100) * 73) + 'px'
+	};
 
     //Returns the image for a character's skill, if they're at the minimum
     //level to obtain it. Otherwise, returns the blank skill image.
@@ -547,33 +560,57 @@ app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'DataService', f
     };
     
     $scope.existsWeapon = function(weaponName){
-    	return weaponName != "" && weaponName != "None";
+    	return weaponName != "-" && weaponName != "None";
     };
+
+	$scope.formatWeaponRank = function(str){ return str.substring(0,1); };
     
     //Returns the weapon rank icon relevant to the passed weapon type
-    $scope.weaponIcon = function(weaponName){ 	
-    	var c = weaponName.toLowerCase();
-    	return "IMG/rank_" + c + ".png";
+    $scope.weaponIcon = function(name){ 
+    	name = name.toLowerCase();
+    	return "IMG/rank_" + name + ".png";
     };
     
     //Calculates the percentage of weapon proficicency for a specific weapon,
     //then returns the width of the progress bar in pixels
     $scope.calcWeaponExp = function(exp){
-		return ((exp/25) * (boxWidth-2));
+    	var progress = 0;
+    	var total = 0;
+		exp = parseInt(exp)
+
+    	if(exp<10){ progress = exp; total = 10; } //E
+    	else if(exp<30){ progress = exp-10; total = 20; } //D
+    	else if(exp<60){ progress = exp-30; total = 30; } //C
+    	else if(exp<100){ progress = exp-60; total = 40; } //B
+    	else if(exp<150){ progress = exp-100; total = 50; } //A
+    	else{ progress = 1; total = 1; } //S
+    	
+    	return ((progress/total) * 30) + 'px'; //30 is the max number of pixels
     };
     
     //Checks if there is a value in the index
     $scope.validDebuff = function(value){
     	return value != "" && value != "0" && value != "-";
     };
+
+	$scope.removeParenthesisWeaponName = function(name){
+		if(name.indexOf("(") == -1) return name;
+    	else return name.substring(0, name.indexOf("(")-1);
+	};
     
     $scope.formatWeaponName = function(name){
     	if(name.indexOf("(D)") == -1) return name;
     	else return name.substring(0, name.indexOf("(D)")-1);
     };
+
+	$scope.formatItemRank = function(name, rank){
+		const ClassesWithNoRank = "ConsumableItemEquipmentNone";
+    	if(ClassesWithNoRank.indexOf(name) != -1) return name;
+    	else return rank + "-" + name;
+    };
     
 	$scope.determineItemColor = function(name){
-    	if(name.indexOf("(D)")!=-1) return ITEM_DROP_COLOR;
+    	if(name.indexOf("(D)") != -1) return ITEM_DROP_COLOR;
     	return COLOR_BLACK;
     };
 
