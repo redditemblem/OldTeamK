@@ -9,7 +9,8 @@ app.service('DataService', ['$rootScope', function ($rootScope) {
 	this.getCharacters = function(){ return characters; };
 	this.getMap = function(){ return map; };
 	this.setMap = function(url){ map = processImageURL(url); };
-	this.getTerrainInfo = function(){ return terrain; }
+	this.getTerrainTypes = function(){ return terrainIndex; };
+	this.getTerrainMappings = function(){ return terrainLocs; };
 
 	this.loadMapData = function(type){ fetchCharacterData(type); };
 	
@@ -120,16 +121,30 @@ app.service('DataService', ['$rootScope', function ($rootScope) {
     };
 	
 	function fetchTerrainIndex(type){
-		var sheet;
-		if(type == 1) sheet = 'Terrain Chart!A2:K';
-		else sheet = 'Gaiden Terrain Chart!A2:K';
-
 		gapi.client.sheets.spreadsheets.values.get({
 			spreadsheetId: sheetId,
 			majorDimension: "ROWS",
-			range: sheet,
+			range: 'Terrain Chart!A2:K',
 		}).then(function(response) {
-			terrainIndex = response.result.values;
+			var rows = response.result.values;
+			terrainIndex = {};
+
+			for(var i = 0; i < rows.length; i++){
+				var r = rows[i];
+				terrainIndex[r[0]] = {
+					'avo' : parseInt(r[1]),
+					'def' : parseInt(r[2]),
+					'foot' :  r[3],
+					'armor' : r[4],
+					'mount' : r[5],
+					'barb' :  r[6],
+					'mage' :  r[7],
+					'flier' : r[8],
+					'effect' : r[9],
+					'desc' : r[10]
+				}
+			}
+
 			updateProgressBar();
 			fetchTerrainChart(type);
 		});
@@ -145,7 +160,27 @@ app.service('DataService', ['$rootScope', function ($rootScope) {
 			majorDimension: "ROWS",
 			range: sheet,
 	    }).then(function(response) {
-			terrainLocs = response.result.values;
+			var locs = response.result.values;
+			terrainLocs = {};
+
+			for(var y = 1; y <= 32; y++)
+				for(var x = 1; x <= 32; x++)
+					terrainLocs[x+","+y] = {
+						'type' : "Plain",
+						'count' : 0
+					}
+			
+			//Update terrain types from input list
+			var index = "";
+			for(var i = 0; i < locs.length; i++){
+				index = locs[i][0].replace( /\s/g, "");
+				terrainLocs[index].terrain = locs[i][1];
+			}
+
+			terrainLocs["-1,-1"] = { 'type' : "Plain" };
+			terrainLocs["Not Deployed"] = { 'type' : "Plain" };
+			terrainLocs["Defeated"] = { 'type' : "Plain" };
+
 			updateProgressBar();
 			processCharacters(type);
 		});

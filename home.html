@@ -1,12 +1,10 @@
-<div id="dropArea" class="mapBox mainBackground">
-
+<div class="mainBackground"></div>
+<div id="dropArea" class="mapBox">
 	<img id="map" class="absolutePos" ng-src="{{mapUrl}}">
 	
-	<div class="fog"></div>
-	
 	<!--Draw tile names-->
-	<div ng-repeat="(yIndex,row) in rows" class="glowBoxIndent absolutePos" ng-style="{top: determineGlowY(yIndex)}">
-		<div class="glowBox" ng-repeat="(indexX,column) in columns" title="({{column}},{{row}}) {{terrainData[column][row][0]}}: {{terrainData[column][row][1]}}🚶  {{terrainData[column][row][2]}}⛨" ng-style="{left: determineGlowX(indexX)}">
+	<div ng-repeat="(yIndex,row) in coordinates" class="glowBoxIndent absolutePos" ng-style="{top: determineGlowY(yIndex)}">
+		<div class="glowBox" ng-repeat="(indexX,column) in coordinates" title="({{column}},{{row}}) {{terrainLocs[row+','+column].type}}: {{terrainTypes[terrainLocs[row+','+column].type].avo}}🚶  {{terrainTypes[terrainLocs[row+','+column].type].def}}⛨" ng-style="{left: determineGlowX(indexX)}">
 			<div class="glowBoxBorderBox" ng-class="{glowBoxBorder3:showGrid==3, glowBoxBorder2:showGrid==2, glowBoxBorder1:showGrid==1}"></div>
 		</div>
 	</div>
@@ -37,18 +35,20 @@
 	
 	<!--Draw character sprites to map-->
 	<div ng-repeat="(cIndex,char) in charaData">
-		<div id="{{cIndex}}" ng-if="validPosition(char.position)" class="hoverImage charDiv" title="({{char.position}}) terrain: mov🚶  shield⛨" ng-click="displayData(cIndex)" ng-style="{top: determineCharY(char.position), left: determineCharX(char.position)}">
+		<div id="{{cIndex}}" class="hoverImage charDiv" ng-if="validPosition(char.position)" title="({{char.position}}) {{terrainLocs[char.position].type}}: {{terrainTypes[terrainLocs[char.position].type].avo}}🚶  {{terrainTypes[terrainLocs[char.position].type].def}}⛨" ng-click="displayData(cIndex)" ng-style="{top: determineCharY(char.position), left: determineCharX($index, char.position)}">
 			<div class="charDiv" class="mapCharOffsetNone">
 				<img ng-src="{{char.spriteUrl}}" class="mapCharCentered" ng-class="{'grayscale' : hasMoved(char.moved)}">
-				<img ng-src="{{getEnemyNum(char.name)}}" class="enemyNum"> <!--style="top:0px"-->
+				<img ng-src="{{getEnemyNum(char.name)}}" class="enemyNum" ng-class="{'numBottom' : !validHP(char.currHp, char.maxHp)}">
 				<img ng-src="{{getStatusIcon(char.status.name, char.turnsLeft)}}" class="enemyNum">
 			</div>
 			<div ng-if="validHP(char.currHp, char.maxHp)">
 				<div class="healthBarBack"></div>
-				<div class="healthBarFront" ng-style="{width:(1+(enemy[5]/enemy[4])*12)+'px','background-color': determineHPColor($index)}"></div>
+				<div class="healthBarFront" ng-style="{width:(1+(char.currHp/char.maxHp)*12)+'px','background-color': determineHPColor(char.currHp, char.maxHp)}"></div>
 				<div class="healthBarBorder"></div>
 			</div>
-			<div id="{{cIndex}}_pairIcon" class="pairUpIcon" style="display:none"><img src="IMG/shield_pairup.png"></div>
+			<div id="{{cIndex}}_pairIcon" class="pairUpIcon" ng-class="{'numBottom' : !validHP(char.currHp, char.maxHp)}" style="display:none">
+				<img src="IMG/shield_pairup.png">
+			</div>
 		</div>
 	</div>
 
@@ -92,10 +92,10 @@
 			<span ng-if="enemyHasStatus($index)" class="indentedStatus">{{char.turnsLeft}}</span>
 		</div>
 		
-		<!--Terrain
-		<div class="infoElement darkTan tanText enemyTerrainPos hoverStatus" ng-mouseenter="TerrainOver=true" ng-mouseleave="TerrainOver=false">
-			<span class="enemyTerrainLabel">Terrain: {{enemy[33][0]}}</span>
-		</div>-->
+		<!--Terrain-->
+		<div class="infoElement darkTan tanText enemyTerrainPos hoverStatus" ng-mouseenter="terrainHoverIn(cIndex)" ng-mouseleave="terrainHoverOut(cIndex)">
+			<span class="enemyTerrainLabel">Terrain: {{terrainLocs[char.position].type}}</span>
+		</div>
 		
 		<!--Weakness Icons-->
 		<span ng-repeat="w in char.class.weaknesses" class="indentedEWeaknessIcon" title="{{w}}" ng-style="{left: fetchWeaknessHorzPos($index), top: fetchWeaknessVerticalPos($index)}">
@@ -109,12 +109,12 @@
 		
 		<!--Stats Column-->
 		<!--HP-->
-		<div class="infoElement darkerTan tanText enemyStatPos" ng-mouseenter="statHoverIn(cIndex, 'HP')" ng-mouseleave="statHoverOut(cIndex, 'HP')" style="top:5px;">
+		<div class="infoElement darkerTan tanText enemyStatPos" style="top:5px;">
 			<span class="enemyStatLabel">HP</span>
 			<span class="indentedEnemyHPStat">{{char.currHp}}/{{char.maxHp}}</span>
 		</div>
 		<!--Other Stats-->
-		<div ng-repeat="stat in statsList" class="infoElement darkerTan tanText enemyStatPos" ng-mouseenter="statHoverIn(cIndex, stat[0])" ng-mouseleave="statHoverOut(cIndex, stat[0])" ng-style="{top: fetchStatVerticalPos($index)}">
+		<div ng-repeat="stat in statsList" class="infoElement darkerTan tanText enemyStatPos" ng-style="{top: fetchStatVerticalPos($index)}">
 			<span class="enemyStatLabel">{{stat[0]}}</span>
 			<span class="indentedEnemyStat">{{char[stat[0]]}}</span>
 		</div>
@@ -139,9 +139,9 @@
 		</div>
 		
 		<!--Weapon ranks-->
-		<div ng-repeat="rank in char.weaponRanks" ng-if="existsWeapon(rank.class)" title="{{rank.rank}} Rank" class="infoElement enemyWeaponRankPos" ng-style="{left: fetchWpnRankHorzPos($index)}">
+		<div ng-repeat="rank in char.weaponRanks" ng-if="existsWeaponRank(rank.class)" title="{{rank.rank}} Rank" class="infoElement enemyWeaponRankPos" ng-style="{left: fetchWpnRankHorzPos($index)}">
 			<span style="position:relative">
-				<img ng-src="{{weaponIcon(rank.class)}}" style="display:inline-block">
+				<img ng-src="{{getWeaponRankIcon(rank.class)}}" style="display:inline-block">
 				<div class="weaponRankLtrPos tanText">{{formatWeaponRank(rank.rank)}}</div>
 				<div class="weaponRankBackground"></div>
 				<div class="weaponRankBar" ng-style="{width: calcWeaponExp(rank.exp)}"></div>
@@ -170,13 +170,13 @@
 		</div>
 		
 		<!--Terrain Info Boxes-->
-		<div ng-if="TerrainOver" class="infoElement green whiteText enemyTerrainPopPos" style="margin-top:121px">
-			<span class="enemyStatusPopLabel"><b>{{enemy[33][0]}}</b>
+		<div ng-if="terrainHoverOn(cIndex)" class="infoElement green whiteText enemyTerrainPopPos" style="top:121px">
+			<span class="enemyStatusPopLabel"><b>{{terrainLocs[char.position].type}}</b>
 			<br>
-			<span> Avoid Modifier: {{enemy[33][1]}}<br></span>
-			<span> Damage Modifier: {{enemy[33][2]}}<br></span>
-			<span>{{enemy[33][3]}}<br></span>
-			<span><i>{{enemy[33][4]}}</i><br></span>
+			<span> Avoid Modifier: {{terrainTypes[terrainLocs[char.position].type].avo}}<br></span>
+			<span> Damage Modifier: {{terrainTypes[terrainLocs[char.position].type].def}}<br></span>
+			<span>{{terrainTypes[terrainLocs[char.position].type].effect}}<br></span>
+			<span><i>{{terrainTypes[terrainLocs[char.position].type].desc}}</i><br></span>
 			</span>
 		</div>
 		

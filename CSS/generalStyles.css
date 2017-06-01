@@ -75,7 +75,7 @@ audio {
 }
 
 .mainBackground{
-	position:absolute;
+	position:fixed;
 	background-image: url("../IMG/background.png");
     background-repeat: repeat;
     background-size: 25%;
