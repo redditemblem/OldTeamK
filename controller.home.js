@@ -89,19 +89,29 @@ app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'DataService', f
     	var bool = $scope[char + "_displayBox"];
     	if(bool == undefined || bool == false){
     		positionCharBox(char);
+			toggleCharRange(char, 1);
     		$scope[char + "_displayBox"] = true;
     	}else{
+			toggleCharRange(char, -1);
     		$scope[char + "_displayBox"] = false;
     	}
     };
-    
-    $scope.removeData = function(index){
-    	$scope[index + "_displayBox"] = false;
+
+    $scope.removeData = function(char){
+		toggleCharRange(char, -1);
+    	$scope[char + "_displayBox"] = false;
     };
     
-    $scope.checkCharToggle = function(index){
-    	return $scope[index + "_displayBox"] == true;
+    $scope.checkCharToggle = function(char){
+    	return $scope[char + "_displayBox"] == true;
     };
+
+	//Add/remove character's range highlighted cells
+	function toggleCharRange(char, val){
+		var rangeList = $scope.charaData[char].range;
+		for(var i = 0; i < rangeList.length; i++)
+			$scope.terrainLocs[rangeList[i]].count += val;
+	};
     
     //Parses an enemy's name to see if it contains a number at the end.
     //If it does, it returns the icon for that number

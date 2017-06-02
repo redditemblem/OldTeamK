@@ -100,7 +100,7 @@ app.service('DataService', ['$rootScope', function ($rootScope) {
     	gapi.client.sheets.spreadsheets.values.get({
             spreadsheetId: sheetId,
             majorDimension: "ROWS",
-            range: 'Class Stats!A2:AI',
+            range: 'Class Stats!A2:AJ',
         }).then(function(response) {
         	classIndex = response.result.values;
          	updateProgressBar();
@@ -134,12 +134,12 @@ app.service('DataService', ['$rootScope', function ($rootScope) {
 				terrainIndex[r[0]] = {
 					'avo' : parseInt(r[1]),
 					'def' : parseInt(r[2]),
-					'foot' :  r[3],
-					'armor' : r[4],
-					'mount' : r[5],
-					'barb' :  r[6],
-					'mage' :  r[7],
-					'flier' : r[8],
+					'Foot' :  r[3],
+					'Armour' : r[4],
+					'Mounted' : r[5],
+					'Barbarian' :  r[6],
+					'Mage' :  r[7],
+					'Flier' : r[8],
 					'effect' : r[9],
 					'desc' : r[10]
 				}
@@ -174,7 +174,7 @@ app.service('DataService', ['$rootScope', function ($rootScope) {
 			var index = "";
 			for(var i = 0; i < locs.length; i++){
 				index = locs[i][0].replace( /\s/g, "");
-				terrainLocs[index].terrain = locs[i][1];
+				terrainLocs[index].type = locs[i][1];
 			}
 
 			terrainLocs["-1,-1"] = { 'type' : "Plain" };
@@ -246,6 +246,17 @@ app.service('DataService', ['$rootScope', function ($rootScope) {
 				for(var k = 23; k < 28; k++)
 					currObj.inventory["itm"+(k-22)] = fetchItem(c[k]);
 
+				//Calculate range
+				var hasCostSkill = false;
+				for(var s in currObj.skills){
+					var name = currObj.skills[s].name;
+					if(name == "Outdoorsman" || name == "Dauntless"){
+						hasCostSkill = true;
+						break;
+					}
+				}
+				currObj.range = calculateCharacterRange(currObj.position, currObj.Mov, currObj.class.terrainType, hasCostSkill);
+
 				characters["char_" + i] = currObj;
 			}
 		}
@@ -256,7 +267,7 @@ app.service('DataService', ['$rootScope', function ($rootScope) {
 	function fetchClass(char, affl, cName){
 		var c = findClass(cName);
 
-		var weaknesses = c[2].split(",");
+		var weaknesses = c[3].split(",");
 		if(affl != undefined && char != undefined){
 			if(affl.indexOf("Reaper") != -1 || char == "Fallacy" || char == "Dolour")
 				weaknesses.push("Reaper");
@@ -282,6 +293,7 @@ app.service('DataService', ['$rootScope', function ($rootScope) {
 		return {
 			'name' : c[0],
 			'desc' : c[1],
+			'terrainType' : c[2],
 			'weaknesses' : weakObj
 		}
 	};
@@ -330,13 +342,13 @@ app.service('DataService', ['$rootScope', function ($rootScope) {
 
 	function findClass(name){
 		if(name == undefined || name.length == 0)
-			return ["", "", ""];
+			return ["", "", "", ""];
 
 		for(var i = 0; i < classIndex.length; i++)
 			if(name == classIndex[i][0])
-				return [classIndex[i][0], classIndex[i][34], classIndex[i][24]];
+				return [classIndex[i][0], classIndex[i][34], classIndex[i][35], classIndex[i][24]];
 		
-		return [name, "This class could not be located.", ""];
+		return [name, "This class could not be located.", "", ""];
 	}
 
 	function findStatus(name){
@@ -375,6 +387,48 @@ app.service('DataService', ['$rootScope', function ($rootScope) {
     			return itemIndex[i];
 
     	return [name, "Unknown", "-", "-", "-", "-", "-", "-", "-", "-|-", "Could not locate item. Please contact Deallocate", "", ""];
+	};
+
+	//\\//\\//\\//\\//\\//
+	// CHARACTER RANGE  //
+	//\\//\\//\\//\\//\\//
+
+	function calculateCharacterRange(pos, range, terrainType, hasCostSkill){
+		if(pos.indexOf(",") == -1 || pos == "-1,-1") return []; //if not placed on the map, don't calculate
+
+		var list = [];
+		var horz = parseInt(pos.substring(0, pos.indexOf(",")));
+		var vert = parseInt(pos.substring(pos.indexOf(",")+1, pos.length));
+		range = parseInt(range);
+
+		recurseRange(horz, vert, range, terrainType, hasCostSkill, list);
+		return list;
+	};
+
+	function recurseRange(horzPos, vertPos, range, terrainType, hasCostSkill, list){
+		if(range <= 0) return; //base case
+
+		//Don't calculate cost for starting tile
+		if(list.length > 0){
+			var cost = 1;
+			var classCost = terrainIndex[terrainLocs[horzPos + "," + vertPos].type][terrainType];
+
+			if(classCost == undefined || classCost == "-") return; //unit cannot traverse tile
+			else if(!hasCostSkill) cost = parseInt(classCost);
+			
+			range -= cost;
+		}
+		
+		if(list.indexOf(horzPos + "," + vertPos) == -1) list.push(horzPos + "," + vertPos);
+
+		if(horzPos > 1)
+			recurseRange(horzPos-1, vertPos, range, terrainType, hasCostSkill, list);
+		if(horzPos < 32)
+			recurseRange(horzPos+1, vertPos, range, terrainType, hasCostSkill, list);
+		if(vertPos > 1)
+			recurseRange(horzPos, vertPos-1, range, terrainType, hasCostSkill, list);
+		if(vertPos < 32)
+			recurseRange(horzPos, vertPos+1, range, terrainType, hasCostSkill, list);
 	};
 
 	//\\//\\//\\//\\//\\//

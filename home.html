@@ -4,7 +4,11 @@
 	
 	<!--Draw tile names-->
 	<div ng-repeat="(yIndex,row) in coordinates" class="glowBoxIndent absolutePos" ng-style="{top: determineGlowY(yIndex)}">
-		<div class="glowBox" ng-repeat="(indexX,column) in coordinates" title="({{column}},{{row}}) {{terrainLocs[row+','+column].type}}: {{terrainTypes[terrainLocs[row+','+column].type].avo}}🚶  {{terrainTypes[terrainLocs[row+','+column].type].def}}⛨" ng-style="{left: determineGlowX(indexX)}">
+		<div class="glowBox"
+			 ng-repeat="(indexX,column) in coordinates"
+			 title="({{column}},{{row}}) {{terrainLocs[column+','+row].type}}: {{terrainTypes[terrainLocs[column+','+row].type].avo}}🚶  {{terrainTypes[terrainLocs[column+','+row].type].def}}⛨"
+			 ng-class="{redGlowBox: terrainLocs[column+','+row].count>0}"
+			 ng-style="{left: determineGlowX(indexX)}">
 			<div class="glowBoxBorderBox" ng-class="{glowBoxBorder3:showGrid==3, glowBoxBorder2:showGrid==2, glowBoxBorder1:showGrid==1}"></div>
 		</div>
 	</div>

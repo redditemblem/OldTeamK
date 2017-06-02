@@ -261,6 +261,11 @@ img{
 	margin-left:0px;
 }
 
+.redGlowBox{
+	opacity: 0.4;
+	background-color: red;
+}
+
 .absolutePos{
 	position:absolute;
 }
