@@ -36,6 +36,8 @@
 		<div ng-if="showGrid==2">Medium</div>
 		<div ng-if="showGrid==3">Thick</div>
 	</button>
+
+	<button style="position: absolute; top: 630px;" ng-click="launchConvoyDialog()">Convoy</button>
 	
 	<!--Draw character sprites to map-->
 	<div ng-repeat="(cIndex,char) in charaData">
@@ -213,4 +215,6 @@
 			<div class="popOutText itemNotesPos italicText">{{item.notes}}</div>
 		</div>
 	</div>
+
+	<convoy ng-if="showConvoy" ng-click="launchConvoyDialog()"></convoy>
 </div>

@@ -4,13 +4,14 @@ app.service('DataService', ['$rootScope', function ($rootScope) {
 	var characters = null;
 	var enemies = null;
 	var terrain = null;
-	var map, characterData, characterImages, itemIndex, terrainIndex, terrainLocs, skillIndex, classIndex, statusIndex;
+	var map, characterData, characterImages, itemIndex, terrainIndex, terrainLocs, skillIndex, classIndex, statusIndex, convoy;
 	
 	this.getCharacters = function(){ return characters; };
 	this.getMap = function(){ return map; };
 	this.setMap = function(url){ map = processImageURL(url); };
 	this.getTerrainTypes = function(){ return terrainIndex; };
 	this.getTerrainMappings = function(){ return terrainLocs; };
+	this.getConvoy = function(){ return convoy; };
 
 	this.loadMapData = function(type){ fetchCharacterData(type); };
 	
@@ -182,7 +183,43 @@ app.service('DataService', ['$rootScope', function ($rootScope) {
 			terrainLocs["Defeated"] = { 'type' : "Plain" };
 
 			updateProgressBar();
-			processCharacters(type);
+			fetchConvoy();
+			
+		});
+	};
+
+	function fetchConvoy(){
+		gapi.client.sheets.spreadsheets.values.get({
+			spreadsheetId: sheetId,
+			majorDimension: "ROWS",
+			range: 'Convoy!A:N',
+	    }).then(function(response) {
+			var items = response.result.values;
+			convoy = [];
+
+			for(var i = 1; i < items.length; i++){
+				var c = items[i];
+				if(c[0].length > 0){
+					convoy.push({
+						'name' : c[0],
+						'owner' : c[1],
+						'uses' : c[2].match(/^-?[0-9]+$/) != null ? parseInt(c[2]) : "",
+						'type' : c[4],
+						'rank' : c[5],
+						'might' : c[6],
+						'hit' : c[7],
+						'crit' : c[8],
+						'weight' : c[9],
+						'range' : c[10],
+						'value' : c[11].match(/^-?[0-9]+$/) != null ? parseInt(c[11]) : "",
+						'effect' : c[12],
+						'desc' : c[13] != undefined ? c[13] : ""
+					})
+				}
+			}
+
+			updateProgressBar();
+			processCharacters();
 		});
 	};	    
     
@@ -190,7 +227,7 @@ app.service('DataService', ['$rootScope', function ($rootScope) {
 	// CHARACTER PROCESSING //
 	//\\//\\//\\//\\//\\//\\//
 
-	function processCharacters(type){
+	function processCharacters(){
 		characters = {};
 		for(var i = 0; i < characterData.length; i++){
 			var c = characterData[i];
@@ -437,7 +474,7 @@ app.service('DataService', ['$rootScope', function ($rootScope) {
     
     function updateProgressBar(){
 		if(progress < 100){
-			progress = progress + 10; //10 calls
+			progress = progress + 9.1; //11 calls
     		$rootScope.$broadcast('loading-bar-updated', progress);
 		}
     };

@@ -1,0 +1,43 @@
+.convoyFrame{
+    position: absolute; 
+    z-index: 99;
+    top: 12.5%;
+    left: 12.5%;
+    height: 75%;
+    width: 75%;
+    background-color: white;
+    box-shadow: 1px 1px 30px black;
+    font-family: "Verdana";
+    padding: 15px;
+}
+
+.convoyTableContainer{
+    height: 80%;
+    overflow-y: scroll;
+    display: block;
+}
+
+table{
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.header{
+    font-size: 12px;
+    width: calc(100% - 17px);
+    background-color: gray;
+}
+
+.inventory{
+    font-size: 10px;
+    width: 100%;
+}
+
+.inventoryRow{
+    height: 30px;
+    border-bottom: 1px solid black;
+}
+
+.gray{
+    background-color: lightblue;
+}

@@ -78,6 +78,10 @@ app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'DataService', f
     	var audio = document.getElementById('audio');
     	audio.load();
     };
+
+	$scope.launchConvoyDialog = function() {
+		$scope.showConvoy = true;
+  	};
     
     //*************************\\
     // FUNCTIONS FOR MAP       \\
