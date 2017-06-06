@@ -1,6 +1,6 @@
 <div class="convoyFrame">
-    <div style="height: 10%; vertical-align: bottom;">
-        <button ng-click="closeConvoy()">Close</button>
+    <div style="height: 45px; vertical-align: bottom;">
+        <img src="IMG/close.png" ng-click="closeConvoy()" class="hoverImage" title="Close convoy" style="float: right;"></img>
         <table class="header">
             <colgroup>
                 <col width="10%" />
@@ -36,7 +36,8 @@
                 <col width="20%" />
                 <col />
             </colgroup>
-            <tr ng-repeat="item in items | orderBy: getItemSortOrder()" ng-if="displayItemType(item.type)" class="inventoryRow">
+            <tbody ng-repeat="item in items | orderBy: getItemSortOrder()" ng-if="displayItemType(item.type)" ng-init="showExtInfo=false" ng-click="showExtInfo=!showExtInfo">
+                <tr class="inventoryRow">
                     <td>{{item.name}}</td>
                     <td ng-style="{'background-color' : getRowColor(item.type)}">{{item.type}}</td>
                     <td>{{item.rank}}</td>
@@ -45,27 +46,37 @@
                     <td>{{item.value}}</td>
                     <td>{{item.effect}}</td>
                     <td>{{item.desc}}</td>
-            </tr>
+                </tr>
+                <tr ng-show="showExtInfo" class="itemStats" ng-style="{'background-color' : getRowColor(item.type)}">
+                    <td colspan="8">[Item Stats] Might: {{item.might}} | Hit: {{item.hit}} | Crit: {{item.crit}} | Weight: {{item.weight}} | Range: {{item.range}}</td>
+                </tr>
+            </tbody>
         </table>
     </div>
-    <div style="height: 10%;">
-        Show Item Types:
-        <input type="checkbox" ng-model="showSword">Sword</input>
-        <input type="checkbox" ng-model="showLance">Lance</input>
-        <input type="checkbox" ng-model="showAxe">Axe</input>
-        <input type="checkbox" ng-model="showBow">Bow</input>
-        <input type="checkbox" ng-model="showTalisman">Talisman</input>
-        <input type="checkbox" ng-model="showTome">Tome</input>
-        <input type="checkbox" ng-model="showRelic">Relic</input>
-        <input type="checkbox" ng-model="showStaff">Staff</input>
-        <input type="checkbox" ng-model="showOther">Other</input>
-        <br/>
-        Sort Order:
-        <button ng-click="updateSortOrder('name')">Item Name</button>
-        <button ng-click="updateSortOrder('type')">Type</button>
-        <button ng-click="updateSortOrder('rank')">Rank</button>
-        <button ng-click="updateSortOrder('-uses')">Uses</button>
-        <button ng-click="updateSortOrder('owner')">Owner</button>
-        <button ng-click="updateSortOrder('-value')">Value</button>
+    <div style="height: 60px;">
+        <div style="width: 500px; display: inline-block; font-size: 10px;">
+            <span style="font-size: 12px;">Show Item Types</span>
+            <br />
+            <input type="checkbox" ng-model="showSword" class="showChkbx">Sword</input>
+            <input type="checkbox" ng-model="showLance" class="showChkbx">Lance</input>
+            <input type="checkbox" ng-model="showAxe" class="showChkbx">Axe</input>
+            <input type="checkbox" ng-model="showBow" class="showChkbx">Bow</input>
+            <input type="checkbox" ng-model="showTalisman" class="showChkbx">Talisman</input>
+            <br />
+            <input type="checkbox" ng-model="showTome" class="showChkbx">Tome</input>
+            <input type="checkbox" ng-model="showRelic" class="showChkbx">Relic</input>
+            <input type="checkbox" ng-model="showStaff" class="showChkbx">Staff</input>
+            <input type="checkbox" ng-model="showOther" class="showChkbx">Other</input>
+        </div><div style="width: 500px; display: inline-block;">
+            <span style="font-size: 12px;">Sort Order</span>
+            <br />
+            <button ng-click="updateSortOrder('name')" class="sortButton">Name</button>
+            <button ng-click="updateSortOrder('type')" class="sortButton">Type</button>
+            <button ng-click="updateSortOrder('rank')" class="sortButton">Rank</button>
+            <br />
+            <button ng-click="updateSortOrder('-uses')" class="sortButton">Uses</button>
+            <button ng-click="updateSortOrder('owner')" class="sortButton">Owner</button>
+            <button ng-click="updateSortOrder('-value')" class="sortButton">Value</button>
+        </div>
     </div>
 </div>

@@ -1,18 +1,18 @@
 .convoyFrame{
     position: absolute; 
     z-index: 99;
-    top: 12.5%;
-    left: 12.5%;
-    height: 75%;
-    width: 75%;
-    background-color: white;
+    top: calc(50% - 250px);
+    left: calc(50% - 500px);
+    height: 500px;
+    width: 1000px;
+    background-color: #f2f2f2;
     box-shadow: 1px 1px 30px black;
     font-family: "Verdana";
     padding: 15px;
 }
 
 .convoyTableContainer{
-    height: 80%;
+    height: 390px;
     overflow-y: scroll;
     display: block;
 }
@@ -23,14 +23,20 @@ table{
 }
 
 .header{
+    position: relative;
     font-size: 12px;
+    font-weight: bold;
     width: calc(100% - 17px);
-    background-color: gray;
+    background-color: #3850e0;
+    top: 20px;
+    height: 25px;
+    border-bottom: 1px solid black;
 }
 
 .inventory{
     font-size: 10px;
     width: 100%;
+    background-color: white;
 }
 
 .inventoryRow{
@@ -38,6 +44,21 @@ table{
     border-bottom: 1px solid black;
 }
 
-.gray{
-    background-color: lightblue;
+.inventoryRow:hover{
+    background-color: #efefef;
+    cursor: pointer;
+}
+
+.itemStats{
+    height: 20px;
+}
+
+.sortButton{
+    width: 100px;
+    height: 20px;
+    border-radius: 5px;
+ 	border: 0px;
+ 	box-shadow: none;
+ 	background-color: gray;
+ 	color: white;
 }
