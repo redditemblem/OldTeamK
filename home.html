@@ -7,8 +7,7 @@
 		<div class="glowBox"
 			 ng-repeat="(indexX,column) in coordinates"
 			 title="({{column}},{{row}}) {{terrainLocs[column+','+row].type}}: {{terrainTypes[terrainLocs[column+','+row].type].avo}}🚶  {{terrainTypes[terrainLocs[column+','+row].type].def}}⛨"
-			 ng-class="{redGlowBox: terrainLocs[column+','+row].count>0}"
-			 ng-style="{left: determineGlowX(indexX)}">
+			 ng-style="{left: determineGlowX(indexX), 'background-color': determineGlowColor(column+','+row)}">
 			<div class="glowBoxBorderBox" ng-class="{glowBoxBorder3:showGrid==3, glowBoxBorder2:showGrid==2, glowBoxBorder1:showGrid==1}"></div>
 		</div>
 	</div>
@@ -132,7 +131,7 @@
 		
 		<!--Item Inventory-->
 		<div ng-repeat="item in char.inventory" class="infoElement paleTan redText hoverTan enemyInventoryBoxPos" ng-mouseenter="weaponHoverIn(cIndex, $index)" ng-mouseleave="weaponHoverOut(cIndex, $index)" ng-style="{top: fetchWeaponVerticalPos($index)}">
-			<span class="indentedEWeaponIcon" ng-if="validWeapon(item.name)"><img ng-src="{{getWeaponClassIcon(item.class)}}"/></span>
+			<span class="indentedEWeaponIcon" ng-if="validWeapon(item.name)"><img ng-src="{{getWeaponClassIcon(item.class, item.altIcon)}}"/></span>
 			<span class="indentedEnemyItem" ng-style="{color: determineItemColor(item.name)}">{{formatWeaponName(item.name)}}</span>
 		</div>
 		

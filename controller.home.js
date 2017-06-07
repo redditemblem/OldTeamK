@@ -1,5 +1,4 @@
 app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'DataService', function ($scope, $location, $interval, DataService) {
-	var onLoad = checkData();
 	$scope.coordinates = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28","29", "30", "31", "32"];
 	$scope.statsList = [
 	                ["Str", "Strength. Affects damage the unit deals with physical attacks."],
@@ -38,16 +37,14 @@ app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'DataService', f
     
     //Reroutes the user if they haven't logged into the app
     //Loads data from the DataService if they have
-    function checkData(){
-    	if(DataService.getCharacters() == null)
-    		$location.path('/');
-    	else{
-    		$scope.charaData = DataService.getCharacters();
-			$scope.mapUrl = DataService.getMap();
-			$scope.terrainTypes = DataService.getTerrainTypes();
-			$scope.terrainLocs = DataService.getTerrainMappings();
-    	}
-    };
+	if(DataService.getCharacters() == null)
+		$location.path('/');
+	else{
+		$scope.charaData = DataService.getCharacters();
+		$scope.mapUrl = DataService.getMap();
+		$scope.terrainTypes = DataService.getTerrainTypes();
+		$scope.terrainLocs = DataService.getTerrainMappings();
+	}
     
     //*************************\\
     // FUNCTIONS FOR MAP SETUP \\
@@ -65,6 +62,15 @@ app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'DataService', f
     $scope.determineGlowX = function(index){
     	return (index * boxWidth) + "px";
     };
+
+	$scope.determineGlowColor = function(loc){
+		if($scope.terrainLocs == undefined) return '';
+		var terrainInfo = $scope.terrainLocs[loc];
+		if(terrainInfo.movCount > 0) return 'blue';
+		if(terrainInfo.atkCount > 0) return 'red';
+		if(terrainInfo.staffCount > 0) return 'green';
+		return '';
+	};
 
 	$scope.toggleGrid = function() {
     	if($scope.showGrid == 3) $scope.showGrid = 0;
@@ -112,9 +118,22 @@ app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'DataService', f
 
 	//Add/remove character's range highlighted cells
 	function toggleCharRange(char, val){
-		var rangeList = $scope.charaData[char].range;
-		for(var i = 0; i < rangeList.length; i++)
-			$scope.terrainLocs[rangeList[i]].count += val;
+		var movRangeList = $scope.charaData[char].range;
+		var atkRangeList = $scope.charaData[char].atkRange;
+
+		var wpnRangeType;
+		var equipped = $scope.charaData[char].inventory.itm1;
+		if(equipped.class == "Staff" || 
+			(equipped.class == "Consumable" && 
+				(equipped.desc.indexOf("Restores") != -1 || equipped.desc.indexOf("Heals") != -1)
+		))
+			wpnRangeType = "staffCount";
+		else wpnRangeType = "atkCount";
+
+		for(var i = 0; i < movRangeList.length; i++)
+			$scope.terrainLocs[movRangeList[i]].movCount += val;
+		for(var j = 0; j < atkRangeList.length; j++)
+			$scope.terrainLocs[atkRangeList[j]][wpnRangeType] += val;
 	};
     
     //Parses an enemy's name to see if it contains a number at the end.
@@ -260,7 +279,10 @@ app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'DataService', f
 		var wpnRank2 = c.weaponRanks.wpn2;
 		var wpnRank3 = c.weaponRanks.wpn3;
 
-    	if(equippedWpn.name == "-" || equippedWpn.name == ""){ c.atk = "-"; return c.atk; }
+    	if(equippedWpn.name == "-" || equippedWpn.name == "" || equippedWpn.might.match(/^-?[0-9]+$/) == null){
+			 c.atk = "-";
+			 return c.atk; 
+		}
     	var power = parseInt(equippedWpn.might);
     	
     	//S-rank power boost
@@ -285,7 +307,10 @@ app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'DataService', f
 		var wpnRank2 = c.weaponRanks.wpn2;
 		var wpnRank3 = c.weaponRanks.wpn3;
 		
-    	if(equippedWpn.name == "-" || equippedWpn.name == ""){ c.hit = "-"; return c.hit; }
+    	if(equippedWpn.name == "-" || equippedWpn.name == "" || equippedWpn.hit.match(/^-?[0-9]+$/) == null){
+			 c.hit = "-";
+			 return c.hit; 
+		}
     	var hit = parseInt(equippedWpn.hit);
     	
     	//S-rank hit boost
@@ -383,7 +408,8 @@ app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'DataService', f
     
     //Returns the icon for the class of the weapon at the index
     //Version for characters
-    $scope.getWeaponClassIcon = function(type){
+    $scope.getWeaponClassIcon = function(type, alt){
+		if(alt.length > 0) return alt;
     	type = type.toLowerCase();
     	return "IMG/Items/type_" + type + ".png";
     };

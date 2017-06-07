@@ -77,7 +77,7 @@ app.service('DataService', ['$rootScope', function ($rootScope) {
 		gapi.client.sheets.spreadsheets.values.get({
 			spreadsheetId: sheetId,
 			majorDimension: "ROWS",
-			range: 'Item Index!A2:M',
+			range: 'Item Index!A2:W',
 		}).then(function(response) {
 			itemIndex = response.result.values;
 			updateProgressBar();
@@ -166,10 +166,7 @@ app.service('DataService', ['$rootScope', function ($rootScope) {
 
 			for(var y = 1; y <= 32; y++)
 				for(var x = 1; x <= 32; x++)
-					terrainLocs[x+","+y] = {
-						'type' : "Plain",
-						'count' : 0
-					}
+					terrainLocs[x+","+y] = getDefaultTerrainObj();
 			
 			//Update terrain types from input list
 			var index = "";
@@ -178,13 +175,12 @@ app.service('DataService', ['$rootScope', function ($rootScope) {
 				terrainLocs[index].type = locs[i][1];
 			}
 
-			terrainLocs["-1,-1"] = { 'type' : "Plain" };
-			terrainLocs["Not Deployed"] = { 'type' : "Plain" };
-			terrainLocs["Defeated"] = { 'type' : "Plain" };
+			terrainLocs["-1,-1"] = getDefaultTerrainObj();
+			terrainLocs["Not Deployed"] = getDefaultTerrainObj();
+			terrainLocs["Defeated"] = getDefaultTerrainObj();
 
 			updateProgressBar();
 			fetchConvoy();
-			
 		});
 	};
 
@@ -283,23 +279,52 @@ app.service('DataService', ['$rootScope', function ($rootScope) {
 				for(var k = 23; k < 28; k++)
 					currObj.inventory["itm"+(k-22)] = fetchItem(c[k]);
 
-				//Calculate range
-				var hasCostSkill = false;
+				//Set terrain information with character affiliation
+				var hasInsurmountable = false;
 				for(var s in currObj.skills){
-					var name = currObj.skills[s].name;
-					if(name == "Outdoorsman" || name == "Dauntless"){
-						hasCostSkill = true;
+					var name = currObj.skills[s];
+					if(name == "Insurmountable"){
+						hasInsurmountable = true;
 						break;
 					}
 				}
-				currObj.range = calculateCharacterRange(currObj.position, currObj.Mov, currObj.class.terrainType, hasCostSkill);
+				if(currObj.position.indexOf(",") != -1 && currObj.position != "-1,-1"){
+					terrainLocs[currObj.position].occupiedAffiliation = currObj.affiliation;
+					if(hasInsurmountable) terrainLocs[currObj.position].insurmountable = true;
+				}
 
 				characters["char_" + i] = currObj;
 			}
 		}
 
 		updateProgressBar();
+		updateCharacterRanges();
 	};
+
+	function updateCharacterRanges(){
+		for(var char in characters){
+			var currObj = characters[char];
+
+			//Determine if character has any skills that affect range
+			var hasCostSkill = false;
+			var hasPass = false;
+			for(var s in currObj.skills){
+				var name = currObj.skills[s].name;
+				if(name == "Outdoorsman" || name == "Dauntless") hasCostSkill = true;
+				if(name == "Pass") hasPass = true;
+			}
+
+			var ranges = calculateCharacterRange(currObj.position, currObj.Mov, currObj.inventory.itm1.range, currObj.class.terrainType, currObj.affiliation, hasCostSkill, hasPass);
+			currObj.range = ranges.movRange;
+			currObj.atkRange = ranges.atkRange;
+		}
+
+		updateProgressBar();
+	};
+
+	//\\//\\//\\//\\//\\//
+	// FETCH FUNCTIONS  //
+	//\\//\\//\\//\\//\\//
 
 	function fetchClass(char, affl, cName){
 		var c = findClass(cName);
@@ -358,7 +383,7 @@ app.service('DataService', ['$rootScope', function ($rootScope) {
 	function fetchItem(item){
 		var i = findItem(item);
 		return{
-			'name' : i[0],
+			'name' : item,
 			'class' : i[1],
 			'rank' : i[2],
 			'might' : i[4],
@@ -369,7 +394,8 @@ app.service('DataService', ['$rootScope', function ($rootScope) {
 			'effect' : i[9],
 			'desc' : i[10],
 			'notes' : i[11],
-			'effect' : i[12]
+			'effect' : i[12] != undefined ? i[12] : "-1",
+			'altIcon' : i[22] != undefined ? i[22] : ""
 		};
 	};
 
@@ -430,56 +456,113 @@ app.service('DataService', ['$rootScope', function ($rootScope) {
 	// CHARACTER RANGE  //
 	//\\//\\//\\//\\//\\//
 
-	function calculateCharacterRange(pos, range, terrainType, hasCostSkill){
-		if(pos.indexOf(",") == -1 || pos == "-1,-1") return []; //if not placed on the map, don't calculate
-
+	function calculateCharacterRange(pos, range, itemRange, terrainType, affiliation, hasCostSkill, hasPass){
 		var list = [];
+		var itemList = [];
+
+		if(pos.indexOf(",") == -1 || pos == "-1,-1")
+			return { 'movRange' : list, 'atkRange' : itemList }; //if not placed on the map, don't calculate
+
 		var horz = parseInt(pos.substring(0, pos.indexOf(",")));
 		var vert = parseInt(pos.substring(pos.indexOf(",")+1, pos.length));
 		range = parseInt(range);
 
-		recurseRange(horz, vert, range, terrainType, hasCostSkill, list);
-		return list;
+		if(itemRange.indexOf("-") != -1 && itemRange.length > 1)
+			itemRange = itemRange.substring(itemRange.indexOf("-")+1, itemRange.length);
+		itemRange = itemRange.trim();
+		itemRange = itemRange.match(/^[0-9]+$/) != null ? parseInt(itemRange) : 0;
+
+		recurseRange(horz, vert, range, itemRange, terrainType, affiliation, hasCostSkill, hasPass, list, itemList, "_");
+		return { 'movRange' : list, 'atkRange' : itemList };
 	};
 
-	function recurseRange(horzPos, vertPos, range, terrainType, hasCostSkill, list){
-		if(range <= 0) return; //base case
-
+	function recurseRange(horzPos, vertPos, range, itemRange, terrainType, affiliation, hasCostSkill, hasPass, list, itemList, trace){
 		//Don't calculate cost for starting tile
-		if(list.length > 0){
+		if(trace.length > 1){
 			var cost = 1;
+			var occupiedAff = terrainLocs[horzPos + "," + vertPos].occupiedAffiliation;
+			var insur = terrainLocs[horzPos + "," + vertPos].insurmountable;
 			var classCost = terrainIndex[terrainLocs[horzPos + "," + vertPos].type][terrainType];
 
-			if(classCost == undefined || classCost == "-") return; //unit cannot traverse tile
+			//Unit cannot traverse tile if it has no cost or it is occupied by an enemy unit
+			if(   classCost == undefined
+			   || classCost == "-"
+			   || insur
+			   || (occupiedAff.length > 0 && occupiedAff != affiliation && !hasPass && !insur)
+			)
+				return;
 			else if(!hasCostSkill) cost = parseInt(classCost);
 			
 			range -= cost;
 		}
 		
 		if(list.indexOf(horzPos + "," + vertPos) == -1) list.push(horzPos + "," + vertPos);
+		trace += horzPos + "," + vertPos + "_";
 
-		if(horzPos > 1)
-			recurseRange(horzPos-1, vertPos, range, terrainType, hasCostSkill, list);
-		if(horzPos < 32)
-			recurseRange(horzPos+1, vertPos, range, terrainType, hasCostSkill, list);
-		if(vertPos > 1)
-			recurseRange(horzPos, vertPos-1, range, terrainType, hasCostSkill, list);
-		if(vertPos < 32)
-			recurseRange(horzPos, vertPos+1, range, terrainType, hasCostSkill, list);
+		if(range <= 0){ //base case
+			recurseItemRange(horzPos, vertPos, itemRange, list, itemList, "_");
+			return;
+		} 
+
+		if(horzPos > 1 && trace.indexOf("_"+(horzPos-1)+","+vertPos+"_") == -1)
+			recurseRange(horzPos-1, vertPos, range, itemRange, terrainType, affiliation, hasCostSkill, hasPass, list, itemList, trace);
+		if(horzPos < 32 && trace.indexOf("_"+(horzPos+1)+","+vertPos+"_") == -1)
+			recurseRange(horzPos+1, vertPos, range, itemRange, terrainType, affiliation, hasCostSkill, hasPass, list, itemList, trace);
+		if(vertPos > 1 && trace.indexOf("_"+horzPos+","+(vertPos-1)+"_") == -1)
+			recurseRange(horzPos, vertPos-1, range, itemRange, terrainType, affiliation, hasCostSkill, hasPass, list, itemList, trace);
+		if(vertPos < 32 && trace.indexOf("_"+horzPos+","+(vertPos+1)+"_") == -1)
+			recurseRange(horzPos, vertPos+1, range, itemRange, terrainType, affiliation, hasCostSkill, hasPass, list, itemList, trace);
+	};
+
+	function recurseItemRange(horzPos, vertPos, range, list, itemList, trace){
+		if(range <= 0) return; //base case
+
+		//Don't check cost for starting tile
+		if(trace.length > 1){
+			//Make sure tile can be traversed by some unit
+			var classCost = terrainIndex[terrainLocs[horzPos + "," + vertPos].type].Flier;
+			if(classCost == undefined || classCost == "-") return;
+			range -= 1;
+
+			if(list.indexOf(horzPos + "," + vertPos) == -1 && itemList.indexOf(horzPos + "," + vertPos) == -1) 
+				itemList.push(horzPos + "," + vertPos);
+		}
+
+		trace += horzPos + "," + vertPos + "_";
+
+		if(horzPos > 1 && trace.indexOf("_"+(horzPos-1)+","+vertPos+"_") == -1)
+			recurseItemRange(horzPos-1, vertPos, range, list, itemList, trace);
+		if(horzPos < 32  && trace.indexOf("_"+(horzPos+1)+","+vertPos+"_") == -1)
+			recurseItemRange(horzPos+1, vertPos, range, list, itemList, trace);
+		if(vertPos > 1 && trace.indexOf("_"+horzPos+","+(vertPos-1)+"_") == -1)
+			recurseItemRange(horzPos, vertPos-1, range, list, itemList, trace);
+		if(vertPos < 32 && trace.indexOf("_"+horzPos+","+(vertPos+1)+"_") == -1)
+			recurseItemRange(horzPos, vertPos+1, range, list, itemList, trace);
 	};
 
 	//\\//\\//\\//\\//\\//
 	// HELPER FUNCTIONS //
 	//\\//\\//\\//\\//\\//
     
+	function getDefaultTerrainObj(){
+		return {
+			'type' : "Plain",
+			'movCount' : 0,
+			'atkCount' : 0,
+			'staffCount' : 0,
+			'occupiedAffiliation' : '',
+			'insurmountable' : false
+		}
+	};
+
     function updateProgressBar(){
 		if(progress < 100){
-			progress = progress + 9.1; //11 calls
+			progress = progress + 8.5; //12 calls
     		$rootScope.$broadcast('loading-bar-updated', progress);
 		}
     };
     
     function processImageURL(str){
-    	return str.substring(8, str.lastIndexOf(",")-1);
+    	return str.substring(str.indexOf("\"")+1, str.lastIndexOf("\""));
     };
 }]);

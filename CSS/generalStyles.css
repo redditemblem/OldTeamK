@@ -223,6 +223,7 @@ img{
 	height:16px;
 	width:16px;
 	display:inline-block;
+	opacity: 0.5;
 }
 
 .glowBoxBorderBox{
@@ -259,11 +260,6 @@ img{
 
 .glowBoxIndent{
 	margin-left:0px;
-}
-
-.redGlowBox{
-	opacity: 0.4;
-	background-color: red;
 }
 
 .absolutePos{
