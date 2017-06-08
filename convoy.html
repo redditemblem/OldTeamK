@@ -47,8 +47,8 @@
                     <td>{{item.effect}}</td>
                     <td>{{item.desc}}</td>
                 </tr>
-                <tr ng-show="showExtInfo" class="itemStats" ng-style="{'background-color' : getRowColor(item.type)}">
-                    <td colspan="8">[Item Stats] Might: {{item.might}} | Hit: {{item.hit}} | Crit: {{item.crit}} | Weight: {{item.weight}} | Range: {{item.range}}</td>
+                <tr ng-show="showExtInfo" class="itemStats">
+                    <td colspan="8" style="padding-left: 10px;">[{{item.name}} Stats] Might: {{item.might}} | Hit: {{item.hit}} | Crit: {{item.crit}} | Weight: {{item.weight}} | Range: {{item.range}}</td>
                 </tr>
             </tbody>
         </table>

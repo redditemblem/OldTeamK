@@ -76,6 +76,8 @@ table{
 
 .itemStats{
     height: 20px;
+    color: white;
+    background-color: #474747;
 }
 
 .sortGrouping{
