@@ -38,12 +38,12 @@
             </colgroup>
             <tbody ng-repeat="item in items | orderBy: getItemSortOrder()" ng-if="displayItemType(item.type)" ng-init="showExtInfo=false" ng-click="showExtInfo=!showExtInfo">
                 <tr class="inventoryRow">
-                    <td>{{item.name}}</td>
-                    <td ng-style="{'background-color' : getRowColor(item.type)}">{{item.type}}</td>
-                    <td>{{item.rank}}</td>
-                    <td>{{item.uses}}</td>
-                    <td>{{item.owner}}</td>
-                    <td>{{item.value}}</td>
+                    <td style="text-align: center;">{{item.name}}</td>
+                    <td style="text-align: center;" ng-style="{'background-color' : getRowColor(item.type)}">{{item.type}}</td>
+                    <td style="text-align: center;">{{item.rank}}</td>
+                    <td style="text-align: center;">{{item.uses}}</td>
+                    <td style="text-align: center;">{{item.owner}}</td>
+                    <td style="text-align: center;">{{item.value}}</td>
                     <td>{{item.effect}}</td>
                     <td>{{item.desc}}</td>
                 </tr>
