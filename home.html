@@ -36,7 +36,10 @@
 		<div ng-if="showGrid==3">Thick</div>
 	</button>
 
-	<button style="position: absolute; top: 630px;" ng-click="launchConvoyDialog()">Convoy</button>
+	<div class="convoyButton" ng-click="launchConvoyDialog()">
+		<span class="convoyButtonText">Convoy</span>
+		<img src="IMG/convoy_button.png"></img>
+	</div>
 	
 	<!--Draw character sprites to map-->
 	<div ng-repeat="(cIndex,char) in charaData">
