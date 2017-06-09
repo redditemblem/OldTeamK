@@ -102,6 +102,11 @@
 	display:inline-block;
 }
 
+.unusableItem{
+	color: dimgray !important;
+	text-decoration: line-through;
+}
+
 .weaponEffectIcons{
 	position: absolute;
 	margin-left:150px;

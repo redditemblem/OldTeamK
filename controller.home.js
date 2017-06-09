@@ -462,6 +462,16 @@ app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'DataService', f
     	return COLOR_BLACK;
     };
 
+	$scope.itemCanBeUsed = function(char, itemIndex){
+		var char = $scope.charaData[char];
+		var eqptClass = char.inventory["itm" + itemIndex].class;
+
+		return eqptClass == char.weaponRanks.wpn1.class
+		    || eqptClass == char.weaponRanks.wpn2.class
+			|| eqptClass == char.weaponRanks.wpn3.class
+			|| eqptClass == "None" || eqptClass == "Consumable" || eqptClass == "Equipment" || eqptClass == "Item";
+	};
+
     //***************************\\
     // MOUSEOVER/MOUSEOUT EVENTS \\
     //***************************\\
