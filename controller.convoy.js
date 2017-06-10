@@ -42,6 +42,23 @@ app.controller('ConvoyCtrl', ['$scope', 'DataService', function($scope, DataServ
       else return 'lightgray';
     };
 
+    $scope.allChecked = function(){
+      return $scope.showSword && $scope.showLance && $scope.showAxe && $scope.showBow && 
+          $scope.showTalisman && $scope.showTome && $scope.showRelic && $scope.showStaff && $scope.showOther;
+    };
+
+    $scope.setAllCheckboxes = function(val){
+        $scope.showSword = val;
+        $scope.showLance = val;
+        $scope.showAxe = val;
+        $scope.showBow = val;
+        $scope.showTalisman = val;
+        $scope.showTome = val;
+        $scope.showRelic = val;
+        $scope.showStaff = val;
+        $scope.showOther = val;
+    };
+
     $scope.closeConvoy = function() {
       $scope.$parent.$parent.showConvoy = false;
     };

@@ -92,6 +92,10 @@
                 <div class="checkbox" ng-click="showOther=!showOther"><span class="check" ng-if="showOther">&#10004;</span></div>
                 <span class="checkboxLabel">Other</span>
             </span>
+            <button class="showChkbx showAllButton">
+                <span ng-if="allChecked()" ng-click="setAllCheckboxes(0)">Deselect All</span>
+                <span ng-if="!allChecked()" ng-click="setAllCheckboxes(1)">Select All</span>
+            </button>
         </div><div class="sortGrouping">
             <button ng-click="updateSortOrder('name')" class="sortButton" ng-class="{'red' : getItemSortOrder() == 'name'}">Name</button>
             <button ng-click="updateSortOrder('type')" class="sortButton" ng-class="{'red' : getItemSortOrder() == 'type'}">Type</button>
