@@ -47,7 +47,8 @@ app.controller('ConvoyCtrl', ['$scope', 'DataService', function($scope, DataServ
           $scope.showTalisman && $scope.showTome && $scope.showRelic && $scope.showStaff && $scope.showOther;
     };
 
-    $scope.setAllCheckboxes = function(val){
+    $scope.setAllCheckboxes = function(){
+        var val = !($scope.allChecked());
         $scope.showSword = val;
         $scope.showLance = val;
         $scope.showAxe = val;

@@ -188,7 +188,7 @@ app.service('DataService', ['$rootScope', function ($rootScope) {
 		gapi.client.sheets.spreadsheets.values.get({
 			spreadsheetId: sheetId,
 			majorDimension: "ROWS",
-			range: 'Convoy!A:N',
+			range: 'Convoy!A:O',
 	    }).then(function(response) {
 			var items = response.result.values;
 			convoy = [];
@@ -208,8 +208,8 @@ app.service('DataService', ['$rootScope', function ($rootScope) {
 						'weight' : c[9],
 						'range' : c[10],
 						'value' : c[11].match(/^-?[0-9]+$/) != null ? parseInt(c[11]) : "",
-						'effect' : c[12],
-						'desc' : c[13] != undefined ? c[13] : ""
+						'effect' : c[13],
+						'desc' : c[14] != undefined ? c[14] : ""
 					})
 				}
 			}
