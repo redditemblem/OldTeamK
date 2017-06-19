@@ -4,14 +4,24 @@
 	<div id="authorize-div" class="authBox">
 		<div class="authText">
 			<img src="IMG/logo.png">
-			
 		</div>
-		<button class="authButton" ng-show="!ready"><img src="IMG/loading.gif"></button>
-		<button class="authButton" ng-show="ready" ng-click="loadAPI(event,1)">Home Base</button>
-		<button class="authButton2" ng-show="!ready"><img src="IMG/loading.gif"></button>
-		<button class="authButton2" ng-show="ready" ng-click="loadAPI(event,2)">Gaiden 2</button>
-
-		<!-- ng-click="loadAPI(event,1)" -->
+		<button class="authButton" ng-disabled="!ready" ng-click="loadAPI(event,1)">
+			<img src="IMG/loading.gif" ng-show="!ready">
+			<span ng-show="ready">Home Base</span>
+		</button>
+		<button class="authButton" ng-disabled="!ready" ng-click="loadAPI(event,2)">
+			<img src="IMG/loading.gif" ng-show="!ready">
+			<span ng-show="ready">Gaiden 2</span>
+		</button>
+		<br />
+		<button class="authButton" ng-disabled="!ready" ng-click="loadAPI(event,3)">
+			<img src="IMG/loading.gif" ng-show="!ready">
+			<span ng-show="ready">Convoy</span>
+		</button>
+		<button class="authButton" ng-disabled="!ready" ng-click="loadAPI(event,4)">
+			<img src="IMG/loading.gif" ng-show="!ready">
+			<span ng-show="ready">Shop</span>
+		</button>
 	</div>
 	<div id="loading-div" class="authBox">
 		<div class="displayLoading">
@@ -20,4 +30,7 @@
 			<progress id="progress" max="100"></progress>
 		</div>
 	</div>
+
+	<convoy ng-if="showConvoy"></convoy>
+	<shop ng-if="showShop"></shop>
 </div>

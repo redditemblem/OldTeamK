@@ -45,6 +45,7 @@
 table{
     border-collapse: collapse;
     text-align: left;
+    table-layout: fixed;
 }
 
 .header{
@@ -153,6 +154,21 @@ table{
 }
 
 .sortButton:hover{
+    background-color: #474747;
+	cursor: pointer;
+}
+
+.shopSortButton{
+    width: 75px;
+    height: 20px;
+    border-radius: 5px;
+ 	border: 0px;
+ 	box-shadow: none;
+ 	background-color: gray;
+ 	color: white;
+}
+
+.shopSortButton:hover{
     background-color: #474747;
 	cursor: pointer;
 }

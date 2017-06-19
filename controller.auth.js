@@ -1,11 +1,15 @@
-app.controller('AuthCtrl', ['$scope', '$location', '$interval', 'DataService', function ($scope, $location, $interval, DataService) {
+app.controller('AuthCtrl', ['$scope', '$location', '$interval', 'MapDataService', function ($scope, $location, $interval, MapDataService) {
     var id = fetch();
 	var sheetId = '16z6l4rfiOPMszGe3sWg1fRylMzD8D_Qld_HgfYyyu5g';
     $scope.ready = false;
     var checkGapi = $interval(checkAuth, 250);
     $scope.loadingIcon = "IMG/loadingImage.gif";
 	$scope.loadingText = pickLoadingQuote();
-    var bar = document.getElementById('progress'); 
+    var bar = document.getElementById('progress');
+
+	//Hide dialogs at start
+	$scope.showShop = false;
+	$scope.showConvoy = false;
     
     //Set div visibility
     var authorizeDiv = document.getElementById('authorize-div');
@@ -28,9 +32,14 @@ app.controller('AuthCtrl', ['$scope', '$location', '$interval', 'DataService', f
     		'apiKey': id, 
     		'discoveryDocs': ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
     	}).then(function(){
-			fetchMapURL(type);
+			if(type == 3) displayConvoyDialog();
+			else if(type == 4) displayShopDialog();
+			else fetchMapURL(type);
     	});
     };
+
+	function displayShopDialog(){ $scope.showShop = true; $scope.$apply(); };
+	function displayConvoyDialog(){ $scope.showConvoy = true; $scope.$apply(); };
 
 	function fetchMapURL(type){
 		var dataRangeName;
@@ -49,8 +58,8 @@ app.controller('AuthCtrl', ['$scope', '$location', '$interval', 'DataService', f
 				authorizeDiv.style.display = "none";
 				loadingDiv.style.display = "inline";
 
-				DataService.setMap(url);
-				DataService.loadMapData(type);
+				MapDataService.setMap(url);
+				MapDataService.loadMapData(type);
 			});
     };
 
@@ -90,14 +99,13 @@ app.controller('AuthCtrl', ['$scope', '$location', '$interval', 'DataService', f
 
     //Redirect user to the map page once data has been loaded
     function redirect(){
+		loadingListener();
     	$location.path('/map').replace();
-    	$scope.$apply();
+		$scope.$apply();
     };
 
-    $scope.$on('loading-bar-updated', function(event, data) {
-    	bar.value = data;
-		if(data >= 100){
-			redirect();
-		}	
+    var loadingListener = $scope.$on('loading-bar-updated', function(event, data) {
+			bar.value = data;
+			if(data >= 100) redirect();
     });
 }]);

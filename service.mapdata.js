@@ -1,4 +1,4 @@
-app.service('DataService', ['$rootScope', function ($rootScope) {
+app.service('MapDataService', ['$rootScope', function ($rootScope) {
 	var sheetId = '16z6l4rfiOPMszGe3sWg1fRylMzD8D_Qld_HgfYyyu5g';
 	var progress = 0;
 	var characters = null;
@@ -11,7 +11,6 @@ app.service('DataService', ['$rootScope', function ($rootScope) {
 	this.setMap = function(url){ map = processImageURL(url); };
 	this.getTerrainTypes = function(){ return terrainIndex; };
 	this.getTerrainMappings = function(){ return terrainLocs; };
-	this.getConvoy = function(){ return convoy; };
 
 	this.loadMapData = function(type){ fetchCharacterData(type); };
 	
@@ -180,44 +179,9 @@ app.service('DataService', ['$rootScope', function ($rootScope) {
 			terrainLocs["Defeated"] = getDefaultTerrainObj();
 
 			updateProgressBar();
-			fetchConvoy();
-		});
-	};
-
-	function fetchConvoy(){
-		gapi.client.sheets.spreadsheets.values.get({
-			spreadsheetId: sheetId,
-			majorDimension: "ROWS",
-			range: 'Convoy!A:O',
-	    }).then(function(response) {
-			var items = response.result.values;
-			convoy = [];
-
-			for(var i = 1; i < items.length; i++){
-				var c = items[i];
-				if(c[0].length > 0){
-					convoy.push({
-						'name' : c[0],
-						'owner' : c[1],
-						'uses' : c[2].match(/^-?[0-9]+$/) != null ? parseInt(c[2]) : "",
-						'type' : c[4],
-						'rank' : c[5],
-						'might' : c[6],
-						'hit' : c[7],
-						'crit' : c[8],
-						'weight' : c[9],
-						'range' : c[10],
-						'value' : c[11].match(/^-?[0-9]+$/) != null ? parseInt(c[11]) : "",
-						'effect' : c[13],
-						'desc' : c[14] != undefined ? c[14] : ""
-					})
-				}
-			}
-
-			updateProgressBar();
 			processCharacters();
 		});
-	};	    
+	};
     
 	//\\//\\//\\//\\//\\//\\//
 	// CHARACTER PROCESSING //
@@ -557,7 +521,7 @@ app.service('DataService', ['$rootScope', function ($rootScope) {
 
     function updateProgressBar(){
 		if(progress < 100){
-			progress = progress + 8.5; //12 calls
+			progress = progress + 9.5; //11 calls
     		$rootScope.$broadcast('loading-bar-updated', progress);
 		}
     };

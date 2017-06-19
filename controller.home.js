@@ -1,4 +1,4 @@
-app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'DataService', function ($scope, $location, $interval, DataService) {
+app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'MapDataService', function ($scope, $location, $interval, MapDataService) {
 	$scope.coordinates = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28","29", "30", "31", "32"];
 	$scope.statsList = [
 	                ["Str", "Strength. Affects damage the unit deals with physical attacks."],
@@ -36,14 +36,14 @@ app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'DataService', f
 	const COLOR_BLACK = "#000000";
     
     //Reroutes the user if they haven't logged into the app
-    //Loads data from the DataService if they have
-	if(DataService.getCharacters() == null)
+    //Loads data from the MapDataService if they have
+	if(MapDataService.getCharacters() == null)
 		$location.path('/');
 	else{
-		$scope.charaData = DataService.getCharacters();
-		$scope.mapUrl = DataService.getMap();
-		$scope.terrainTypes = DataService.getTerrainTypes();
-		$scope.terrainLocs = DataService.getTerrainMappings();
+		$scope.charaData = MapDataService.getCharacters();
+		$scope.mapUrl = MapDataService.getMap();
+		$scope.terrainTypes = MapDataService.getTerrainTypes();
+		$scope.terrainLocs = MapDataService.getTerrainMappings();
 	}
     
     //*************************\\
@@ -84,6 +84,10 @@ app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'DataService', f
     	var audio = document.getElementById('audio');
     	audio.load();
     };
+
+	$scope.redirectToHomePage = function() {
+		$location.path('/');
+  	};
 
 	$scope.launchConvoyDialog = function() {
 		$scope.showConvoy = true;

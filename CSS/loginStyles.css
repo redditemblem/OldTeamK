@@ -11,20 +11,16 @@
 
 .authBox{
 	position:absolute;
-	height:200px;
+	height:250px;
 	width:750px;
-	top: 50%;
-	left: 50%;
-	margin-left: -400px;
-	margin-top: -80px;
+	top: calc(50% - 125px);
+	left: calc(50% - 375px);
 }
 
 .authImage{
 	position:absolute;
-	top: 50%;
-	left: 50%;
-	margin-left: -280px;
-	margin-top: -325px;
+	top: calc(50% - 325px);
+	left: calc(50% - 280px);
 }
 
 .authBoxBlurred{
@@ -57,26 +53,10 @@
 
 .authButton{
 	position: relative;
+	left: calc(50% - 110px);
+	margin: 5px;
 	width: 110px;
 	height: 35px;
-	left: 50%;
-	margin-left: -50px;
-	margin-top: -5px;
- 	border-radius: 10px;
- 	border: 0px;
- 	box-shadow: none;
- 	background-color: #000000;
- 	color: white;
-}
-
-.authButton2{
-	position: absolute;
-	left: 50%;
-	top: 92%;
-	width: 110px;
-	height: 35px;
-	margin-left: -50px;
-	margin-top: -5px;
  	border-radius: 10px;
  	border: 0px;
  	box-shadow: none;
@@ -85,14 +65,9 @@
 }
 
 .authButton:hover{
-		background-color: #ff0000;
+	background-color: #ff0000;
 	cursor: pointer;
 
-}
-
-.authButton2:hover{
-		background-color: #ff0000;
-	cursor: pointer;
 }
 
 progress{

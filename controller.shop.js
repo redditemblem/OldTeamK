@@ -1,16 +1,16 @@
-app.controller('ConvoyCtrl', ['$scope', 'ConvoyDataService', function($scope, ConvoyDataService){
+app.controller('ShopCtrl', ['$scope', 'ShopDataService', function($scope, ShopDataService){
     $scope.items = [];
 
     //Initialize items list, load it if it hasn't been already
-    if(ConvoyDataService.getItems() == null){
-        ConvoyDataService.loadConvoyData();
+    if(ShopDataService.getItems() == null){
+        ShopDataService.loadShopData();
 
-        $scope.$on('convoy-load-finished', function(event) {
-    	    $scope.items = ConvoyDataService.getItems();
+        $scope.$on('shop-load-finished', function(event) {
+    	    $scope.items = ShopDataService.getItems();
             $scope.$apply(); //force update of items list
         });
     }else{
-        $scope.items = ConvoyDataService.getItems();
+        $scope.items = ShopDataService.getItems();
     }
 
     //Color Constants
@@ -26,7 +26,7 @@ app.controller('ConvoyCtrl', ['$scope', 'ConvoyDataService', function($scope, Co
     }
 
     //Filter settings
-    var sortOrder = 'name';
+    var sortOrder = 'type';
     $scope.showSword = true;
     $scope.showLance = true;
     $scope.showAxe = true;
@@ -72,7 +72,7 @@ app.controller('ConvoyCtrl', ['$scope', 'ConvoyDataService', function($scope, Co
         $scope.showOther = val;
     };
 
-    $scope.closeConvoy = function() {
-      $scope.$parent.$parent.showConvoy = false;
+    $scope.closeShop = function() {
+      $scope.$parent.$parent.showShop = false;
     };
 }]);
