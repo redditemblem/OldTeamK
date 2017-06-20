@@ -6,6 +6,7 @@ app.controller('AuthCtrl', ['$scope', '$location', '$interval', 'MapDataService'
     $scope.loadingIcon = "IMG/loadingImage.gif";
 	$scope.loadingText = pickLoadingQuote();
     var bar = document.getElementById('progress');
+	var loadingListener;
 
 	//Hide dialogs at start
 	$scope.showShop = false;
@@ -34,34 +35,27 @@ app.controller('AuthCtrl', ['$scope', '$location', '$interval', 'MapDataService'
     	}).then(function(){
 			if(type == 3) displayConvoyDialog();
 			else if(type == 4) displayShopDialog();
-			else fetchMapURL(type);
+			else fetchMapData(type);
     	});
     };
 
 	function displayShopDialog(){ $scope.showShop = true; $scope.$apply(); };
 	function displayConvoyDialog(){ $scope.showConvoy = true; $scope.$apply(); };
 
-	function fetchMapURL(type){
-		var dataRangeName;
-		if(type == 1) dataRangeName = "Current Map!A:A";
-		else dataRangeName = "Gaiden Current Map!A:A";
+	function fetchMapData(type){
+		//Display loading bar
+		pickLoadingQuote();
+		authorizeDiv.style.display = "none";
+		loadingDiv.style.display = "inline";
 
-		gapi.client.sheets.spreadsheets.values.get({
-			spreadsheetId: sheetId,
-			majorDimension: "COLUMNS",
-			valueRenderOption: "FORMULA",
-			range: dataRangeName,
-			}).then(function(response) {
-				var url = response.result.values[0][5];
-				
-				//Display loading bar
-				authorizeDiv.style.display = "none";
-				loadingDiv.style.display = "inline";
+		//Initialize load listener
+		loadingListener = $scope.$on('loading-bar-updated', function(event, data) {
+			bar.value = data;
+			if(data >= 100) redirect();
+		});
 
-				MapDataService.setMap(url);
-				MapDataService.loadMapData(type);
-			});
-    };
+		MapDataService.loadMapData(type); 
+	};
 
 	function pickLoadingQuote(){
 		var num = Math.floor((Math.random() * 22) + 1);
@@ -103,9 +97,4 @@ app.controller('AuthCtrl', ['$scope', '$location', '$interval', 'MapDataService'
     	$location.path('/map').replace();
 		$scope.$apply();
     };
-
-    var loadingListener = $scope.$on('loading-bar-updated', function(event, data) {
-			bar.value = data;
-			if(data >= 100) redirect();
-    });
 }]);

@@ -37,13 +37,19 @@
 	</button>
 
 	<div class="convoyButton" ng-click="redirectToHomePage()">
-		<span class="convoyButtonText">&#11013; Home</span>
-		<img src="IMG/convoy_button.png"></img>
+		<span class="convoyButtonText">&#11013; Menu</span>
+		<img src="IMG/convoy_button.png" />
 	</div>
 
-	<div class="convoyButton" style="left: 80px;" ng-click="launchConvoyDialog()">
+	<div class="convoyButton" style="left: 80px;" ng-click="refreshData()">
+		<span class="convoyButtonText" ng-if="!refreshing">&#10226; Refresh</span>
+		<img src="IMG/loading.gif" class="convoyLoadingButton" ng-if="refreshing" />
+		<img src="IMG/convoy_button.png" />
+	</div>
+
+	<div class="convoyButton" style="left: 160px;" ng-click="launchConvoyDialog()">
 		<span class="convoyButtonText">Convoy</span>
-		<img src="IMG/convoy_button.png"></img>
+		<img src="IMG/convoy_button.png" />
 	</div>
 
 	<!--Draw character sprites to map-->

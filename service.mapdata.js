@@ -4,21 +4,42 @@ app.service('MapDataService', ['$rootScope', function ($rootScope) {
 	var characters = null;
 	var enemies = null;
 	var terrain = null;
-	var map, characterData, characterImages, itemIndex, terrainIndex, terrainLocs, skillIndex, classIndex, statusIndex, convoy;
+	var type, map, characterData, characterImages, itemIndex, terrainIndex, terrainLocs, skillIndex, classIndex, statusIndex, convoy;
 	
 	this.getCharacters = function(){ return characters; };
-	this.getMap = function(){ return map; };
-	this.setMap = function(url){ map = processImageURL(url); };
 	this.getTerrainTypes = function(){ return terrainIndex; };
 	this.getTerrainMappings = function(){ return terrainLocs; };
+	this.getMap = function(){ return map; };
+	this.getMapType = function(){ return type; };
 
-	this.loadMapData = function(type){ fetchCharacterData(type); };
+	this.loadMapData = function(t){
+		progress = 0;
+		type = t;
+		fetchMapURL();
+	};
 	
 	//\\//\\//\\//\\//\\//
 	// FETCH FUNCTIONS //
 	//\\//\\//\\//\\//\\//
 
-    function fetchCharacterData(type) {
+	function fetchMapURL(){
+		var sheet;
+		if(type == 1) sheet = "Current Map!A:A";
+		else sheet = "Gaiden Current Map!A:A";
+
+		gapi.client.sheets.spreadsheets.values.get({
+			spreadsheetId: sheetId,
+			majorDimension: "COLUMNS",
+			valueRenderOption: "FORMULA",
+			range: sheet,
+		}).then(function(response) {
+			map = processImageURL(response.result.values[0][5]);
+			updateProgressBar();
+			fetchCharacterData();
+		});
+	};
+
+    function fetchCharacterData() {
 		var sheet;
     	if(type==1) sheet = 'Stats!A1:ZZ';
 		else sheet = 'Gaiden Stats!A1:ZZ';
@@ -30,11 +51,11 @@ app.service('MapDataService', ['$rootScope', function ($rootScope) {
 		}).then(function(response) {
 			characterData = response.result.values;
 			updateProgressBar();
-			fetchPlayerImageData(type);
+			fetchPlayerImageData();
 		});
     };
 
-	function fetchPlayerImageData(type){
+	function fetchPlayerImageData(){
 		var sheet;
 		if(type==1) sheet = 'Player Stats!B3:3';
 		else sheet = 'Gaiden Player Stats!B3:3';
@@ -47,11 +68,11 @@ app.service('MapDataService', ['$rootScope', function ($rootScope) {
 		}).then(function(response) {
 			characterImages = response.result.values[0];
 			updateProgressBar();
-			fetchEnemyImageData(type);
+			fetchEnemyImageData();
 		});
     };
 
-	function fetchEnemyImageData(type){
+	function fetchEnemyImageData(){
 		var sheet;
 		if(type==1) sheet = 'Enemy Stats!B3:3';
 		else sheet = 'Gaiden Enemy Stats!B3:3';
@@ -68,11 +89,11 @@ app.service('MapDataService', ['$rootScope', function ($rootScope) {
 				characterData[i][2] = processImageURL(characterImages[i]);
 
 			updateProgressBar();
-			fetchWeaponIndex(type);
+			fetchWeaponIndex();
 		});
     };
 
-	function fetchWeaponIndex(type){
+	function fetchWeaponIndex(){
 		gapi.client.sheets.spreadsheets.values.get({
 			spreadsheetId: sheetId,
 			majorDimension: "ROWS",
@@ -80,11 +101,11 @@ app.service('MapDataService', ['$rootScope', function ($rootScope) {
 		}).then(function(response) {
 			itemIndex = response.result.values;
 			updateProgressBar();
-			fetchSkillDesc(type);
+			fetchSkillDesc();
 		});
 	};
 
-	function fetchSkillDesc(type){
+	function fetchSkillDesc(){
   	  gapi.client.sheets.spreadsheets.values.get({
 	  	spreadsheetId: sheetId,
 		majorDimension: "ROWS",
@@ -92,11 +113,11 @@ app.service('MapDataService', ['$rootScope', function ($rootScope) {
 	  }).then(function(response) {
 		skillIndex = response.result.values;
 		updateProgressBar();
-		fetchClassData(type);
+		fetchClassData();
 	  });
     };
 
-	function fetchClassData(type){
+	function fetchClassData(){
     	gapi.client.sheets.spreadsheets.values.get({
             spreadsheetId: sheetId,
             majorDimension: "ROWS",
@@ -104,11 +125,11 @@ app.service('MapDataService', ['$rootScope', function ($rootScope) {
         }).then(function(response) {
         	classIndex = response.result.values;
          	updateProgressBar();
-         	fetchStatusData(type);
+         	fetchStatusData();
         });
     };
 
-	function fetchStatusData(type){
+	function fetchStatusData(){
     	gapi.client.sheets.spreadsheets.values.get({
             spreadsheetId: sheetId,
             majorDimension: "ROWS",
@@ -116,11 +137,11 @@ app.service('MapDataService', ['$rootScope', function ($rootScope) {
         }).	then(function(response) {
         	statusIndex = response.result.values;
          	updateProgressBar()
-			fetchTerrainIndex(type);
+			fetchTerrainIndex();
         });
     };
 	
-	function fetchTerrainIndex(type){
+	function fetchTerrainIndex(){
 		gapi.client.sheets.spreadsheets.values.get({
 			spreadsheetId: sheetId,
 			majorDimension: "ROWS",
@@ -146,11 +167,11 @@ app.service('MapDataService', ['$rootScope', function ($rootScope) {
 			}
 
 			updateProgressBar();
-			fetchTerrainChart(type);
+			fetchTerrainChart();
 		});
 	};
 
-	function fetchTerrainChart(type){
+	function fetchTerrainChart(){
 		var sheet;
 		if(type==1) sheet = 'Terrain Locations!A2:B';
 		else sheet = 'Gaiden Terrain Locations!A2:B';
@@ -521,7 +542,7 @@ app.service('MapDataService', ['$rootScope', function ($rootScope) {
 
     function updateProgressBar(){
 		if(progress < 100){
-			progress = progress + 9.5; //11 calls
+			progress = progress + 8.5; //12 calls
     		$rootScope.$broadcast('loading-bar-updated', progress);
 		}
     };

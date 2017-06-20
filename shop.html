@@ -56,7 +56,9 @@
                     <td style="text-align: center;">{{item.name}}</td>
                     <td style="text-align: center;" ng-style="{'background-color' : getRowColor(item.type)}">{{item.type}}</td>
                     <td style="text-align: center;">{{item.stock}}</td>
-                    <td style="text-align: center;">{{item.cost}}G</td>
+                    <td style="text-align: center;">
+                        {{item.cost}}G <span ng-if="item.sale > 0" class="saleText">(-{{item.sale}}%)</span>
+                    </td>
                     <td style="text-align: center;">{{item.rank}}</td>
                     <td style="text-align: center;">{{item.uses}}</td>
                     <td style="text-align: center;">{{item.might}}</td>

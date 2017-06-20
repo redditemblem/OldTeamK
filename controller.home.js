@@ -14,6 +14,7 @@ app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'MapDataService'
 	//Interval timers
     var dragNDrop = $interval(initializeListeners, 250, 20);
 	var pairUps = $interval(setPairIcons, 250, 20);
+	var refreshListener, mapType;
     
 	//Map and music variables
 	$scope.showGrid = 1;
@@ -41,9 +42,10 @@ app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'MapDataService'
 		$location.path('/');
 	else{
 		$scope.charaData = MapDataService.getCharacters();
-		$scope.mapUrl = MapDataService.getMap();
 		$scope.terrainTypes = MapDataService.getTerrainTypes();
 		$scope.terrainLocs = MapDataService.getTerrainMappings();
+		$scope.mapUrl = MapDataService.getMap();
+		mapType = MapDataService.getMapType();
 	}
     
     //*************************\\
@@ -88,6 +90,25 @@ app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'MapDataService'
 	$scope.redirectToHomePage = function() {
 		$location.path('/');
   	};
+
+	$scope.refreshData = function(){
+		if($scope.refreshing == true) return; //If already refreshing, don't make a second call
+		$scope.refreshing = true;
+		
+		refreshListener = $scope.$on('loading-bar-updated', function(event, data) {
+			if(data >= 100){
+				refreshListener(); //cancel listener
+				$scope.refreshing = false;
+				$scope.charaData = MapDataService.getCharacters();
+				$scope.terrainTypes = MapDataService.getTerrainTypes();
+				$scope.terrainLocs = MapDataService.getTerrainMappings();
+				$scope.mapUrl = MapDataService.getMap();
+				$scope.$apply();
+			}
+		});
+
+		MapDataService.loadMapData(mapType);
+	};
 
 	$scope.launchConvoyDialog = function() {
 		$scope.showConvoy = true;
