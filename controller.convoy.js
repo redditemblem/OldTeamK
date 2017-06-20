@@ -1,17 +1,25 @@
 app.controller('ConvoyCtrl', ['$scope', 'ConvoyDataService', function($scope, ConvoyDataService){
     $scope.items = [];
+    var loadingListener;
+
+    //Fetch convoy data
+    $scope.fetchConvoy = function(){
+      if($scope.refreshing == true) return;
+
+      $scope.refreshing = true;
+      loadingListener = $scope.$on('convoy-load-finished', function(event) {
+        loadingListener();
+        $scope.refreshing = false;
+        $scope.items = ConvoyDataService.getItems();
+        $scope.$apply(); //force update of items list
+      });
+
+      ConvoyDataService.loadConvoyData();
+    };
 
     //Initialize items list, load it if it hasn't been already
-    if(ConvoyDataService.getItems() == null){
-        ConvoyDataService.loadConvoyData();
-
-        $scope.$on('convoy-load-finished', function(event) {
-    	    $scope.items = ConvoyDataService.getItems();
-            $scope.$apply(); //force update of items list
-        });
-    }else{
-        $scope.items = ConvoyDataService.getItems();
-    }
+    if(ConvoyDataService.getItems() == null) $scope.fetchConvoy();
+    else $scope.items = ConvoyDataService.getItems();
 
     //Color Constants
     const ROW_COLORS = {

@@ -1,6 +1,9 @@
 <div class="convoyFrame">
-    <div style="height: 45px; vertical-align: bottom;">
-        <img src="IMG/close.png" ng-click="closeConvoy()" class="hoverImage" title="Close convoy" style="float: right;"></img>
+    <div style="height: 45px;">
+        <div style="float: right; height: 16px;">
+            <img src="IMG/refresh.png" ng-click="fetchConvoy()" class="hoverImage" title="Refresh convoy data" />
+            <img src="IMG/close.png" ng-click="closeConvoy()" class="hoverImage" title="Close convoy" />
+        </div>
         <table class="header">
             <colgroup>
                 <col width="10%" />

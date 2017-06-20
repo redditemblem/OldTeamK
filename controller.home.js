@@ -110,9 +110,8 @@ app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'MapDataService'
 		MapDataService.loadMapData(mapType);
 	};
 
-	$scope.launchConvoyDialog = function() {
-		$scope.showConvoy = true;
-  	};
+	$scope.launchConvoyDialog = function() { $scope.showConvoy = true; };
+	$scope.launchShopDialog = function(){ $scope.showShop = true; };
     
     //*************************\\
     // FUNCTIONS FOR MAP       \\

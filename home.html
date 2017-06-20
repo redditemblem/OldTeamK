@@ -40,15 +40,17 @@
 		<span class="convoyButtonText">&#11013; Menu</span>
 		<img src="IMG/convoy_button.png" />
 	</div>
-
 	<div class="convoyButton" style="left: 80px;" ng-click="refreshData()">
 		<span class="convoyButtonText" ng-if="!refreshing">&#10226; Refresh</span>
 		<img src="IMG/loading.gif" class="convoyLoadingButton" ng-if="refreshing" />
 		<img src="IMG/convoy_button.png" />
 	</div>
-
 	<div class="convoyButton" style="left: 160px;" ng-click="launchConvoyDialog()">
 		<span class="convoyButtonText">Convoy</span>
+		<img src="IMG/convoy_button.png" />
+	</div>
+	<div class="convoyButton" style="left: 240px;" ng-click="launchShopDialog()">
+		<span class="convoyButtonText">Shop</span>
 		<img src="IMG/convoy_button.png" />
 	</div>
 
@@ -230,4 +232,5 @@
 	</div>
 
 	<convoy ng-if="showConvoy"></convoy>
+	<shop ng-if="showShop"></shop>
 </div>

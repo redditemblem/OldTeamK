@@ -1,6 +1,9 @@
 <div class="convoyFrame">
     <div style="height: 45px; vertical-align: bottom;">
-        <img src="IMG/close.png" ng-click="closeShop()" class="hoverImage" title="Close shop" style="float: right;"></img>
+        <div style="float: right; height: 16px;">
+            <img src="IMG/refresh.png" ng-click="fetchShop()" class="hoverImage" title="Refresh shop data" />
+            <img src="IMG/close.png" ng-click="closeShop()" class="hoverImage" title="Close shop" />
+        </div>
         <table class="header">
             <colgroup>
                 <col width="10%" />
@@ -57,7 +60,7 @@
                     <td style="text-align: center;" ng-style="{'background-color' : getRowColor(item.type)}">{{item.type}}</td>
                     <td style="text-align: center;">{{item.stock}}</td>
                     <td style="text-align: center;">
-                        {{item.cost}}G <span ng-if="item.sale > 0" class="saleText">(-{{item.sale}}%)</span>
+                        {{item.cost}}G <span ng-if="item.sale > 0" class="saleText">(-{{100 - item.sale}}%)</span>
                     </td>
                     <td style="text-align: center;">{{item.rank}}</td>
                     <td style="text-align: center;">{{item.uses}}</td>

@@ -1,17 +1,25 @@
 app.controller('ShopCtrl', ['$scope', 'ShopDataService', function($scope, ShopDataService){
     $scope.items = [];
+    var loadingListener;
+
+    //Fetch shop data
+    $scope.fetchShop = function(){
+      if($scope.refreshing == true) return;
+
+      $scope.refreshing = true;
+      loadingListener = $scope.$on('shop-load-finished', function(event) {
+        loadingListener();
+        $scope.refreshing = false;
+        $scope.items = ShopDataService.getItems();
+        $scope.$apply(); //force update of items list
+      });
+
+      ShopDataService.loadShopData();
+    };
 
     //Initialize items list, load it if it hasn't been already
-    if(ShopDataService.getItems() == null){
-        ShopDataService.loadShopData();
-
-        $scope.$on('shop-load-finished', function(event) {
-    	    $scope.items = ShopDataService.getItems();
-            $scope.$apply(); //force update of items list
-        });
-    }else{
-        $scope.items = ShopDataService.getItems();
-    }
+    if(ShopDataService.getItems() == null) $scope.fetchShop();
+    else $scope.items = ShopDataService.getItems();
 
     //Color Constants
     const ROW_COLORS = {
