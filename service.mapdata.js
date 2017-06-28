@@ -97,7 +97,7 @@ app.service('MapDataService', ['$rootScope', function ($rootScope) {
 		gapi.client.sheets.spreadsheets.values.get({
 			spreadsheetId: sheetId,
 			majorDimension: "ROWS",
-			range: 'Item Index!A2:W',
+			range: 'Item Index!A2:V',
 		}).then(function(response) {
 			itemIndex = response.result.values;
 			updateProgressBar();
@@ -380,7 +380,7 @@ app.service('MapDataService', ['$rootScope', function ($rootScope) {
 			'desc' : i[10],
 			'notes' : i[11],
 			'effect' : i[12] != undefined ? i[12] : "-1",
-			'altIcon' : i[22] != undefined ? i[22] : ""
+			'altIcon' : i[21] != undefined ? i[21] : ""
 		};
 	};
 
