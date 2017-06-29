@@ -70,7 +70,7 @@ app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'MapDataService'
 		var terrainInfo = $scope.terrainLocs[loc];
 		if(terrainInfo.movCount > 0) return 'blue';
 		if(terrainInfo.atkCount > 0) return 'red';
-		if(terrainInfo.staffCount > 0) return 'green';
+		if(terrainInfo.healCount > 0) return 'green';
 		return '';
 	};
 
@@ -144,20 +144,14 @@ app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'MapDataService'
 	function toggleCharRange(char, val){
 		var movRangeList = $scope.charaData[char].range;
 		var atkRangeList = $scope.charaData[char].atkRange;
-
-		var wpnRangeType;
-		var equipped = $scope.charaData[char].inventory.itm1;
-		if(equipped.class == "Staff" || 
-			(equipped.class == "Consumable" && 
-				(equipped.desc.indexOf("Restores") != -1 || equipped.desc.indexOf("Heals") != -1)
-		))
-			wpnRangeType = "staffCount";
-		else wpnRangeType = "atkCount";
+		var healRangeList = $scope.charaData[char].healRange;
 
 		for(var i = 0; i < movRangeList.length; i++)
 			$scope.terrainLocs[movRangeList[i]].movCount += val;
 		for(var j = 0; j < atkRangeList.length; j++)
-			$scope.terrainLocs[atkRangeList[j]][wpnRangeType] += val;
+			$scope.terrainLocs[atkRangeList[j]].atkCount += val;
+		for(var k = 0; k < healRangeList.length; k++)
+			$scope.terrainLocs[healRangeList[k]].healCount += val;
 	};
     
     //Parses an enemy's name to see if it contains a number at the end.

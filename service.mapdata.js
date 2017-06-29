@@ -299,9 +299,20 @@ app.service('MapDataService', ['$rootScope', function ($rootScope) {
 				if(name == "Pass") hasPass = true;
 			}
 
-			var ranges = calculateCharacterRange(currObj.position, currObj.Mov, currObj.inventory.itm1.range, currObj.class.terrainType, currObj.affiliation, hasCostSkill, hasPass);
+			var maxAtkRange = 0;
+			var maxHealRange = 0;
+
+			for(var i in currObj.inventory){
+				var item = currObj.inventory[i];
+				var range = formatItemRange(item.range);
+				if(isAttackingItem(item.class, item.desc) && range > maxAtkRange) maxAtkRange = range;
+				else if(range > maxHealRange) maxHealRange = range;
+			}
+			
+			var ranges = calculateCharacterRange(currObj.position, currObj.Mov, maxAtkRange, maxHealRange, currObj.class.terrainType, currObj.affiliation, hasCostSkill, hasPass);
 			currObj.range = ranges.movRange;
 			currObj.atkRange = ranges.atkRange;
+			currObj.healRange = ranges.healRange;
 		}
 
 		updateProgressBar();
@@ -441,27 +452,23 @@ app.service('MapDataService', ['$rootScope', function ($rootScope) {
 	// CHARACTER RANGE  //
 	//\\//\\//\\//\\//\\//
 
-	function calculateCharacterRange(pos, range, itemRange, terrainType, affiliation, hasCostSkill, hasPass){
+	function calculateCharacterRange(pos, range, atkRange, healRange, terrainType, affiliation, hasCostSkill, hasPass){
 		var list = [];
-		var itemList = [];
+		var atkList = [];
+		var healList = [];
 
 		if(pos.indexOf(",") == -1 || pos == "-1,-1")
-			return { 'movRange' : list, 'atkRange' : itemList }; //if not placed on the map, don't calculate
+			return { 'movRange' : list, 'atkRange' : atkList, 'healRange' : healList }; //if not placed on the map, don't calculate
 
 		var horz = parseInt(pos.substring(0, pos.indexOf(",")));
 		var vert = parseInt(pos.substring(pos.indexOf(",")+1, pos.length));
 		range = parseInt(range);
 
-		if(itemRange.indexOf("-") != -1 && itemRange.length > 1)
-			itemRange = itemRange.substring(itemRange.indexOf("-")+1, itemRange.length);
-		itemRange = itemRange.trim();
-		itemRange = itemRange.match(/^[0-9]+$/) != null ? parseInt(itemRange) : 0;
-
-		recurseRange(horz, vert, range, itemRange, terrainType, affiliation, hasCostSkill, hasPass, list, itemList, "_");
-		return { 'movRange' : list, 'atkRange' : itemList };
+		recurseRange(horz, vert, range, atkRange, healRange, terrainType, affiliation, hasCostSkill, hasPass, list, atkList, healList, "_");
+		return { 'movRange' : list, 'atkRange' : atkList, 'healRange' : healList };
 	};
 
-	function recurseRange(horzPos, vertPos, range, itemRange, terrainType, affiliation, hasCostSkill, hasPass, list, itemList, trace){
+	function recurseRange(horzPos, vertPos, range, atkRange, healRange, terrainType, affiliation, hasCostSkill, hasPass, list, atkList, healList, trace){
 		//Don't calculate cost for starting tile
 		if(trace.length > 1){
 			var cost = 1;
@@ -485,18 +492,19 @@ app.service('MapDataService', ['$rootScope', function ($rootScope) {
 		trace += horzPos + "," + vertPos + "_";
 
 		if(range <= 0){ //base case
-			recurseItemRange(horzPos, vertPos, itemRange, list, itemList, "_");
+			recurseItemRange(horzPos, vertPos, atkRange, list, atkList, "_");
+			recurseItemRange(horzPos, vertPos, healRange, list, healList, "_");
 			return;
 		} 
 
 		if(horzPos > 1 && trace.indexOf("_"+(horzPos-1)+","+vertPos+"_") == -1)
-			recurseRange(horzPos-1, vertPos, range, itemRange, terrainType, affiliation, hasCostSkill, hasPass, list, itemList, trace);
+			recurseRange(horzPos-1, vertPos, range, atkRange, healRange, terrainType, affiliation, hasCostSkill, hasPass, list, atkList, healList, trace);
 		if(horzPos < 32 && trace.indexOf("_"+(horzPos+1)+","+vertPos+"_") == -1)
-			recurseRange(horzPos+1, vertPos, range, itemRange, terrainType, affiliation, hasCostSkill, hasPass, list, itemList, trace);
+			recurseRange(horzPos+1, vertPos, range, atkRange, healRange, terrainType, affiliation, hasCostSkill, hasPass, list, atkList, healList, trace);
 		if(vertPos > 1 && trace.indexOf("_"+horzPos+","+(vertPos-1)+"_") == -1)
-			recurseRange(horzPos, vertPos-1, range, itemRange, terrainType, affiliation, hasCostSkill, hasPass, list, itemList, trace);
+			recurseRange(horzPos, vertPos-1, range, atkRange, healRange, terrainType, affiliation, hasCostSkill, hasPass, list, atkList, healList, trace);
 		if(vertPos < 32 && trace.indexOf("_"+horzPos+","+(vertPos+1)+"_") == -1)
-			recurseRange(horzPos, vertPos+1, range, itemRange, terrainType, affiliation, hasCostSkill, hasPass, list, itemList, trace);
+			recurseRange(horzPos, vertPos+1, range, atkRange, healRange, terrainType, affiliation, hasCostSkill, hasPass, list, atkList, healList, trace);
 	};
 
 	function recurseItemRange(horzPos, vertPos, range, list, itemList, trace){
@@ -534,10 +542,26 @@ app.service('MapDataService', ['$rootScope', function ($rootScope) {
 			'type' : "Plain",
 			'movCount' : 0,
 			'atkCount' : 0,
-			'staffCount' : 0,
+			'healCount' : 0,
 			'occupiedAffiliation' : '',
 			'insurmountable' : false
 		}
+	};
+
+	function formatItemRange(range){
+		if(range.indexOf("-") != -1 && range.length > 1)
+			range = range.substring(range.indexOf("-")+1, range.length);
+		range = range.trim();
+		return range.match(/^[0-9]+$/) != null ? parseInt(range) : 0;
+	};
+
+	function isAttackingItem(wpnClass, desc){
+		if(wpnClass == "Staff" || 
+			(wpnClass == "Consumable" && 
+				(desc.indexOf("Restores") != -1 || desc.indexOf("Heals") != -1)
+		))
+			return false;
+		else return true;
 	};
 
     function updateProgressBar(){
