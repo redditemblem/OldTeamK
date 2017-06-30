@@ -80,7 +80,7 @@ app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'MapDataService'
     };
     
     $scope.toggleMusic = function() {
-    	if($scope.musicTrack == $scope.numSongs-1) $scope.musicTrack = 0;
+    	if($scope.musicTrack == numSongs-1) $scope.musicTrack = 0;
     	else $scope.musicTrack += 1;
 
     	var audio = document.getElementById('audio');
