@@ -254,7 +254,7 @@ img{
 }
 
 .glowBox:hover{
-	box-shadow: 0px 0px 10px #00ffff;
+	box-shadow: 0px 0px 10px #ff0000;
 	z-index:1 
 }
 
