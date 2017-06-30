@@ -191,8 +191,9 @@ app.service('MapDataService', ['$rootScope', function ($rootScope) {
 			//Update terrain types from input list
 			var index = "";
 			for(var i = 0; i < locs.length; i++){
-				index = locs[i][0].replace( /\s/g, "");
-				terrainLocs[index].type = locs[i][1];
+				index = locs[i][0].replace( /\s/g, ""); //remove spaces
+				if(locs[i][1] != "Treasure") terrainLocs[index].type = locs[i][1];
+				else terrainLocs[index].treasure = true;
 			}
 
 			terrainLocs["-1,-1"] = getDefaultTerrainObj();
@@ -553,7 +554,8 @@ app.service('MapDataService', ['$rootScope', function ($rootScope) {
 			'atkCount' : 0,
 			'healCount' : 0,
 			'occupiedAffiliation' : '',
-			'insurmountable' : false
+			'insurmountable' : false,
+			'treasure' : false
 		}
 	};
 
