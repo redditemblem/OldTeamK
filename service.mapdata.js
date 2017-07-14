@@ -267,16 +267,26 @@ app.service('MapDataService', ['$rootScope', function ($rootScope) {
 
 				//Set terrain information with character affiliation
 				var hasInsurmountable = false;
+				var hasObstruct = false;
 				for(var s in currObj.skills){
-					var name = currObj.skills[s];
-					if(name == "Insurmountable"){
-						hasInsurmountable = true;
-						break;
-					}
+					var name = currObj.skills[s].name;
+					if(name == "Insurmountable") hasInsurmountable = true;
+					if(name == "Obstruct") hasObstruct = true;
 				}
+
+
 				if(currObj.position.indexOf(",") != -1 && currObj.position != "-1,-1"){
 					terrainLocs[currObj.position].occupiedAffiliation = currObj.affiliation;
 					if(hasInsurmountable) terrainLocs[currObj.position].insurmountable = true;
+
+					if(hasObstruct){
+						var horz = parseInt(currObj.position.substring(0, currObj.position.indexOf(",")));
+						var vert = parseInt(currObj.position.substring(currObj.position.indexOf(",")+1, pos.length));
+						terrainLocs[(horz-1) + "," + vert].obstruct = true;
+						terrainLocs[(horz+1) + "," + vert].obstruct = true;
+						terrainLocs[horz + "," + (vert-1)].obstruct = true;
+						terrainLocs[horz + "," + (vert+1)].obstruct = true;
+					}
 				}
 
 				characters["char_" + i] = currObj;
@@ -481,11 +491,12 @@ app.service('MapDataService', ['$rootScope', function ($rootScope) {
 			var cost = 1;
 			var occupiedAff = terrainLocs[horzPos + "," + vertPos].occupiedAffiliation;
 			var insur = terrainLocs[horzPos + "," + vertPos].insurmountable;
+			var obstructed = terrainLocs[horzPos + "," + vertPos].obstruct;
 			var classCost = terrainIndex[terrainLocs[horzPos + "," + vertPos].type][terrainType];
 
 			//Unit cannot traverse tile if it has no cost or it is occupied by an enemy unit
 			if(hasWaterWings && terrainLocs[horzPos + "," + vertPos].type.indexOf("Water") != -1) cost = 1;
-			else if(   classCost == undefined
+			else if( classCost == undefined
 			   || classCost == "-"
 			   || insur
 			   || (occupiedAff.length > 0 && occupiedAff != affiliation && !hasPass && !insur)
@@ -494,6 +505,7 @@ app.service('MapDataService', ['$rootScope', function ($rootScope) {
 				recurseItemRange(horzPos, vertPos, healRange, list, healList, "_", true);
 				return;
 			}
+			else if(obstructed) cost = 99;
 			else if(!hasCostSkill) cost = parseFloat(classCost);
 			
 			range -= cost;
@@ -555,6 +567,7 @@ app.service('MapDataService', ['$rootScope', function ($rootScope) {
 			'healCount' : 0,
 			'occupiedAffiliation' : '',
 			'insurmountable' : false,
+			'obstruct' : false,
 			'treasure' : false
 		}
 	};
