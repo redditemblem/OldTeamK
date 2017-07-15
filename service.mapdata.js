@@ -317,12 +317,24 @@ app.service('MapDataService', ['$rootScope', function ($rootScope) {
 
 			for(var i in currObj.inventory){
 				var item = currObj.inventory[i];
-				var range = formatItemRange(item.range);
-				if(isAttackingItem(item.class, item.desc) && range > maxAtkRange) maxAtkRange = range;
-				else if(range > maxHealRange) maxHealRange = range;
+				if(canUseItem(currObj.weaponRanks, item.class)){
+					var range = formatItemRange(item.range);
+					if(isAttackingItem(item.class, item.desc) && range > maxAtkRange) maxAtkRange = range;
+					else if(range > maxHealRange) maxHealRange = range;
+				}
 			}
 			
-			var ranges = calculateCharacterRange(currObj.position, currObj.Mov, maxAtkRange, maxHealRange, currObj.class.terrainType, currObj.affiliation, hasCostSkill, hasPass, hasWaterWings);
+			var params = {
+				'atkRange' : maxAtkRange,
+				'healRange' : maxHealRange > maxAtkRange ? maxHealRange : 0,
+				'terrainClass' : currObj.class.terrainType,
+				'affiliation' : currObj.affiliation,
+				'hasCostSkill' : hasCostSkill,
+				'hasPass' : hasPass,
+				'hasWaterWings' : hasWaterWings
+			};
+
+			var ranges = calculateCharacterRange(currObj.position, currObj.Mov, params);
 			currObj.range = ranges.movRange;
 			currObj.atkRange = ranges.atkRange;
 			currObj.healRange = ranges.healRange;
@@ -469,90 +481,91 @@ app.service('MapDataService', ['$rootScope', function ($rootScope) {
 	// CHARACTER RANGE  //
 	//\\//\\//\\//\\//\\//
 
-	function calculateCharacterRange(pos, range, atkRange, healRange, terrainType, affiliation, hasCostSkill, hasPass, hasWaterWings){
-		var list = [];
-		var atkList = [];
-		var healList = [];
-
+	function calculateCharacterRange(pos, range, params){
 		if(pos.indexOf(",") == -1 || pos == "-1,-1")
-			return { 'movRange' : list, 'atkRange' : atkList, 'healRange' : healList }; //if not placed on the map, don't calculate
+			return { 'movRange' : [], 'atkRange' : [], 'healRange' : [] }; //if not placed on the map, don't calculate
 
 		var horz = parseInt(pos.substring(0, pos.indexOf(",")));
 		var vert = parseInt(pos.substring(pos.indexOf(",")+1, pos.length));
 		range = parseInt(range);
 
-		recurseRange(horz, vert, range, atkRange, healRange, terrainType, affiliation, hasCostSkill, hasPass, hasWaterWings, list, atkList, healList, "_");
+		var list = [];
+		var atkList = [];
+		var healList = [];
+
+		recurseRange(0, horz, vert, range, params, list, atkList, healList, "_");
 		return { 'movRange' : list, 'atkRange' : atkList, 'healRange' : healList };
 	};
 
-	function recurseRange(horzPos, vertPos, range, atkRange, healRange, terrainType, affiliation, hasCostSkill, hasPass, hasWaterWings, list, atkList, healList, trace){
+	//MODES
+	//0 = mov, 1 = atk, 2 = heal
+	function recurseRange(mode, horzPos, vertPos, range, params, list, atkList, healList, trace){
 		//Don't calculate cost for starting tile
-		if(trace.length > 1){
-			var cost = 1;
-			var occupiedAff = terrainLocs[horzPos + "," + vertPos].occupiedAffiliation;
-			var insur = terrainLocs[horzPos + "," + vertPos].insurmountable;
-			var obstructed = terrainLocs[horzPos + "," + vertPos].obstruct;
-			var classCost = terrainIndex[terrainLocs[horzPos + "," + vertPos].type][terrainType];
+		var coord = horzPos + "," + vertPos;
+		var tile = terrainLocs[coord];
 
-			//Unit cannot traverse tile if it has no cost or it is occupied by an enemy unit
-			if(hasWaterWings && terrainLocs[horzPos + "," + vertPos].type.indexOf("Water") != -1) cost = 1;
-			else if( classCost == undefined
-			   || classCost == "-"
-			   || insur
-			   || (occupiedAff.length > 0 && occupiedAff != affiliation && !hasPass && !insur)
+		//Mov mode calcs
+		if(trace.length > 1 && mode == 0){
+			var classCost = terrainIndex[tile.type][params.terrainClass];
+
+			//Determine traversal cost
+			if( classCost == undefined
+			   || (classCost == "-" && !(params.hasWaterWings && tile.type.indexOf("Water") != -1))
+			   || tile.insurmountable
+			   || (tile.occupiedAffiliation.length > 0 && tile.occupiedAffiliation != params.affiliation && !params.hasPass && !tile.insurmountable)
 			){
-				recurseItemRange(horzPos, vertPos, atkRange, list, atkList, "_", true);
-				recurseItemRange(horzPos, vertPos, healRange, list, healList, "_", true);
-				return;
+				if(params.atkRange > 0){ range = params.atkRange; mode = 1; }
+				else if(params.healRange > 0){ range = params.healRange; mode = 2; }
+				else return;
 			}
-			else if(obstructed) cost = 99;
-			else if(!hasCostSkill) cost = parseFloat(classCost);
-			
-			range -= cost;
+			else if(params.hasWaterWings && tile.type.indexOf("Water") != -1) range -= 1;
+			else if(tile.obstruct) range -= 99;
+			else if(!params.hasCostSkill) range -= parseFloat(classCost);
+			else range -= 1;
 		}
-		
-		if(list.indexOf(horzPos + "," + vertPos) == -1) list.push(horzPos + "," + vertPos);
-		trace += horzPos + "," + vertPos + "_";
 
-		if(range <= 0){ //base case
-			recurseItemRange(horzPos, vertPos, atkRange, list, atkList, "_", false);
-			recurseItemRange(horzPos, vertPos, healRange, list, healList, "_", false);
-			return;
-		} 
-
-		if(horzPos > 1 && trace.indexOf("_"+(horzPos-1)+","+vertPos+"_") == -1)
-			recurseRange(horzPos-1, vertPos, range, atkRange, healRange, terrainType, affiliation, hasCostSkill, hasPass, hasWaterWings, list, atkList, healList, trace);
-		if(horzPos < 32 && trace.indexOf("_"+(horzPos+1)+","+vertPos+"_") == -1)
-			recurseRange(horzPos+1, vertPos, range, atkRange, healRange, terrainType, affiliation, hasCostSkill, hasPass, hasWaterWings, list, atkList, healList, trace);
-		if(vertPos > 1 && trace.indexOf("_"+horzPos+","+(vertPos-1)+"_") == -1)
-			recurseRange(horzPos, vertPos-1, range, atkRange, healRange, terrainType, affiliation, hasCostSkill, hasPass, hasWaterWings, list, atkList, healList, trace);
-		if(vertPos < 32 && trace.indexOf("_"+horzPos+","+(vertPos+1)+"_") == -1)
-			recurseRange(horzPos, vertPos+1, range, atkRange, healRange, terrainType, affiliation, hasCostSkill, hasPass, hasWaterWings, list, atkList, healList, trace);
-	};
-
-	function recurseItemRange(horzPos, vertPos, range, list, itemList, trace, countSelf){
-		if(range <= 0) return; //base case
-
-		if(countSelf || trace.length > 1){
-			//Make sure tile can be traversed by some unit
-			var classCost = terrainIndex[terrainLocs[horzPos + "," + vertPos].type].Flier;
+		//Attack/heal mode calcs
+		if(mode > 0){
+			var classCost = terrainIndex[terrainLocs[coord].type].Flier;
 			if(classCost == undefined || classCost == "-") return;
 			range -= 1;
-
-			if(list.indexOf(horzPos + "," + vertPos) == -1 && itemList.indexOf(horzPos + "," + vertPos) == -1) 
-				itemList.push(horzPos + "," + vertPos);
 		}
 
-		trace += horzPos + "," + vertPos + "_";
+		if(mode == 0 && list.indexOf(coord) == -1) list.push(coord);
+		else if(mode == 1 && atkList.indexOf(coord) == -1) atkList.push(coord);
+		else if(healList.indexOf(coord) == -1) healList.push(coord);
+		
+		trace += coord + "_";
 
-		if(horzPos > 1 && trace.indexOf("_"+(horzPos-1)+","+vertPos+"_") == -1)
-			recurseItemRange(horzPos-1, vertPos, range, list, itemList, trace);
-		if(horzPos < 32  && trace.indexOf("_"+(horzPos+1)+","+vertPos+"_") == -1)
-			recurseItemRange(horzPos+1, vertPos, range, list, itemList, trace);
-		if(vertPos > 1 && trace.indexOf("_"+horzPos+","+(vertPos-1)+"_") == -1)
-			recurseItemRange(horzPos, vertPos-1, range, list, itemList, trace);
-		if(vertPos < 32 && trace.indexOf("_"+horzPos+","+(vertPos+1)+"_") == -1)
-			recurseItemRange(horzPos, vertPos+1, range, list, itemList, trace);
+		if(range <= 0){ //base case
+			if(mode == 0 && params.atkRange > 0){ range = params.atkRange; mode = 1; }
+			else if(mode != 2 && params.healRange > 0){ 
+				if(mode == 0) range = params.healRange;
+				else range = params.healRange - params.atkRange;
+				mode = 2; 
+			}
+			else return;
+		} 
+
+		if(horzPos > 1 && trace.indexOf("_"+(horzPos-1)+","+vertPos+"_") == -1 &&
+			(mode == 0 || (list.indexOf("_"+(horzPos-1)+","+vertPos+"_") == -1 && 
+				(mode == 1 || atkList.indexOf("_"+(horzPos-1)+","+vertPos+"_") == -1))))
+			recurseRange(mode, horzPos-1, vertPos, range, params, list, atkList, healList, trace);
+
+		if(horzPos < 32 && trace.indexOf("_"+(horzPos+1)+","+vertPos+"_") == -1 &&
+			(mode == 0 || (list.indexOf("_"+(horzPos+1)+","+vertPos+"_") == -1 && 
+				(mode == 1 || atkList.indexOf("_"+(horzPos+1)+","+vertPos+"_") == -1))))
+			recurseRange(mode, horzPos+1, vertPos, range, params, list, atkList, healList, trace);
+
+		if(vertPos > 1 && trace.indexOf("_"+horzPos+","+(vertPos-1)+"_") == -1 &&
+			(mode == 0 || (list.indexOf("_"+horzPos+","+(vertPos-1)+"_") == -1 && 
+				(mode == 1 || atkList.indexOf("_"+horzPos+","+(vertPos-1)+"_") == -1))))
+			recurseRange(mode, horzPos, vertPos-1, range, params, list, atkList, healList, trace);
+
+		if(vertPos < 32 && trace.indexOf("_"+horzPos+","+(vertPos+1)+"_") == -1 &&
+			(mode == 0 || (list.indexOf("_"+horzPos+","+(vertPos+1)+"_") == -1 && 
+				(mode == 1 || atkList.indexOf("_"+horzPos+","+(vertPos+1)+"_") == -1))))
+			recurseRange(mode, horzPos, vertPos+1, range, params, list, atkList, healList, trace);
 	};
 
 	//\\//\\//\\//\\//\\//
@@ -586,6 +599,13 @@ app.service('MapDataService', ['$rootScope', function ($rootScope) {
 		))
 			return false;
 		else return true;
+	};
+
+	function canUseItem(wpnRanks, cls){
+		return cls == wpnRanks.wpn1.class 
+			|| cls == wpnRanks.wpn2.class 
+			|| cls == wpnRanks.wpn3.class 
+			|| ("NoneConsumableItemEquipment").indexOf(cls) != -1;
 	};
 
     function updateProgressBar(){
