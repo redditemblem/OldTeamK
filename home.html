@@ -17,14 +17,14 @@
 	<img class="absolutePos" ng-src="IMG/time_out.png" style="top:512px" />
 	
 	<audio id="audio" controls loop>
-		<source ng-if="musicTrack==0" src="MUS/themeJungle.mp3" type="audio/mpeg">
+		<source ng-if="musicTrack==0" src="MUS/themePumpSystem.mp3" type="audio/mpeg">
 		<source ng-if="musicTrack==1" src="MUS/themeBattle.mp3" type="audio/mpeg">
   		<source ng-if="musicTrack==2" src="MUS/themeMain.mp3" type="audio/mpeg">
 		Your browser does not support the audio element.
 	</audio>
 	 
 	<button class="buttonMusicStyle buttonHover" ng-click="toggleMusic()">
-		<div ng-if="musicTrack==0">Jungle Theme: Between Those of Light and Dark</div>
+		<div ng-if="musicTrack==0">Pump System Theme: Duel At The Brink </div>
 		<div ng-if="musicTrack==1">Battle Theme: Break Through Adversity</div>
 		<div ng-if="musicTrack==2">Main Theme: Those Who Would End The World</div>
 		<div ng-if="musicTrack==3">???</div>

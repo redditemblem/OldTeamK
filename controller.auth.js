@@ -81,6 +81,7 @@ app.controller('AuthCtrl', ['$scope', '$location', '$interval', 'MapDataService'
 			case 20 : return 'Duncan will remember this...';
 			case 21 : return 'You went full anime. Never go full anime...';
 			case 22 : return 'Deal with it. - Sirrus, 2017';
+			case 22 : return '#LyleDidNothingWrong';
 		}
 	};
     
