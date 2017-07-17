@@ -282,10 +282,18 @@ app.service('MapDataService', ['$rootScope', function ($rootScope) {
 					if(hasObstruct){
 						var horz = parseInt(currObj.position.substring(0, currObj.position.indexOf(",")));
 						var vert = parseInt(currObj.position.substring(currObj.position.indexOf(",")+1, pos.length));
+
 						terrainLocs[(horz-1) + "," + vert].obstruct = true;
+						terrainLocs[(horz-1) + "," + vert].obstructAffl = currObj.affiliation;
+
 						terrainLocs[(horz+1) + "," + vert].obstruct = true;
+						terrainLocs[(horz+1) + "," + vert].obstructAffl = currObj.affiliation;
+
 						terrainLocs[horz + "," + (vert-1)].obstruct = true;
+						terrainLocs[horz + "," + (vert-1)].obstructAffl = currObj.affiliation;
+
 						terrainLocs[horz + "," + (vert+1)].obstruct = true;
+						terrainLocs[horz + "," + (vert+1)].obstructAffl = currObj.affiliation;
 					}
 				}
 
@@ -519,7 +527,7 @@ app.service('MapDataService', ['$rootScope', function ($rootScope) {
 				else return;
 			}
 			else if(params.hasWaterWings && tile.type.indexOf("Water") != -1) range -= 1;
-			else if(tile.obstruct) range -= 99;
+			else if(tile.obstruct && tile.obstructAffl != params.affiliation) range -= 99;
 			else if(!params.hasCostSkill) range -= parseFloat(classCost);
 			else range -= 1;
 		}
@@ -581,6 +589,7 @@ app.service('MapDataService', ['$rootScope', function ($rootScope) {
 			'occupiedAffiliation' : '',
 			'insurmountable' : false,
 			'obstruct' : false,
+			'obstructAffl' : '',
 			'treasure' : false
 		}
 	};
