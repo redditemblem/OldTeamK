@@ -1,7 +1,11 @@
 <div class="mainBackground"></div>
 <div id="dropArea" class="mapBox">
+
+	<div class="ichor"></div> <!--Remove me!-->
+	<div class="fog"></div>
+
 	<img id="map" class="absolutePos" ng-src="{{mapUrl}}">
-	
+
 	<!--Draw tile names-->
 	<div ng-repeat="(yIndex,row) in coordinates" class="glowBoxIndent absolutePos" ng-style="{top: determineGlowY(yIndex)}">
 		<div class="glowBox"
@@ -13,7 +17,7 @@
 			</div>
 		</div>
 	</div>
-	
+
 	<img class="absolutePos" ng-src="IMG/time_out.png" style="top:512px" />
 	
 	<audio id="audio" controls loop>

@@ -14,6 +14,16 @@
 	text-align: left;
 }
 
+.ichor
+{
+   position: absolute;
+   left: 0px;
+   top: 0px;
+   width: 512px;
+   height: 512px;
+   background-color: #ffc700;
+}
+
 .fog{
    position: absolute;
    left: 0px;
@@ -24,7 +34,7 @@
    background-repeat: repeat;
    background-size: 25%;
    background-position: 0% 0%;
-   opacity: .3;
+   opacity: .15;
    /* Apply animation to this element */
    -moz-animation: scroll-diagonal 10s linear infinite;
    -webkit-animation: scroll-diagonal 10s linear infinite;
