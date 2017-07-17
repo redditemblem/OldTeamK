@@ -313,11 +313,25 @@ app.service('MapDataService', ['$rootScope', function ($rootScope) {
 			var hasCostSkill = false;
 			var hasPass = false;
 			var hasWaterWings = false;
+			var hasStaffSavant = false;
+			var hasSwordSavant = false;
+			var hasLanceSavant = false;
+			var hasAxeSavant = false;
+			var hasBowSavant = false;
+
 			for(var s in currObj.skills){
 				var name = currObj.skills[s].name;
-				if(name == "Outdoorsman" || name == "Dauntless") hasCostSkill = true;
-				if(name == "Pass") hasPass = true;
-				if(name == "Water Wings") hasWaterWings = true;
+				switch(name){
+					case "Outdoorsman" : 
+					case "Dauntless" : hasCostSkill = true; break;
+					case "Pass" : hasPass = true; break;
+					case "Water Wings" : hasWaterWings = true; break;
+					case "Staff Savant" : hasStaffSavant = true; break;
+					case "Sword Savant" : hasSwordSavant = true; break;
+					case "Lance Savant" : hasLanceSavant = true; break;
+					case "Axe Savant" : hasAxeSavant = true; break;
+					case "Bow Savant" : hasBowSavant = true; break;
+				}
 			}
 
 			var maxAtkRange = 0;
@@ -327,8 +341,17 @@ app.service('MapDataService', ['$rootScope', function ($rootScope) {
 				var item = currObj.inventory[i];
 				if(canUseItem(currObj.weaponRanks, item.class)){
 					var range = formatItemRange(item.range);
-					if(isAttackingItem(item.class, item.desc) && range > maxAtkRange) maxAtkRange = range;
-					else if(range > maxHealRange) maxHealRange = range;
+
+					if((hasSwordSavant && item.class == "Sword") ||
+					   (hasLanceSavant && item.class == "Lance") ||
+					   (hasAxeSavant && item.class == "Axe"))
+					{ range = 2; }
+					else if((hasBowSavant && item.class == "Bow" && range < 3) ||
+							(hasStaffSavant && item.class == "Staff"))
+				    { range += 1; }
+
+					if(isAttackingItem(item.class, item.desc) && range > maxAtkRange){ maxAtkRange = range; maxAtkItemClass = item.class; }
+					else if(range > maxHealRange){ maxHealRange = range; maxHealItemClass = item.class; }
 				}
 			}
 			
