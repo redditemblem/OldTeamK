@@ -550,7 +550,7 @@ app.service('MapDataService', ['$rootScope', function ($rootScope) {
 				else return;
 			}
 			else if(params.hasWaterWings && tile.type.indexOf("Water") != -1) range -= 1;
-			else if(tile.obstruct && tile.obstructAffl != params.affiliation) range -= 99;
+			else if(tile.obstruct && tile.obstructAffl != params.affiliation && !params.hasPass) range -= 99;
 			else if(!params.hasCostSkill) range -= parseFloat(classCost);
 			else range -= 1;
 		}
