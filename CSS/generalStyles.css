@@ -21,24 +21,23 @@
    top: 0px;
    width: 512px;
    height: 512px;
-   background-color: #ffc700;
 }
 
 .fog{
    position: absolute;
    left: 0px;
    top: 0px;
-   background-image: url("../IMG/fog.png");
+   background-image: url("../IMG/miasmicIchor.gif");
    width: 512px;
    height: 512px;
    background-repeat: repeat;
-   background-size: 25%;
+   background-size: 1/16%;
    background-position: 0% 0%;
-   opacity: .15;
+   opacity: 1;
    /* Apply animation to this element */
-   -moz-animation: scroll-diagonal 10s linear infinite;
-   -webkit-animation: scroll-diagonal 10s linear infinite;
-   animation: scroll-diagonal 30s linear infinite;
+   -moz-animation: scroll-diagonal 20s linear infinite;
+   -webkit-animation: scroll-diagonal 20s linear infinite;
+   animation: scroll-diagonal 60s linear infinite;
 }
 
 @-moz-keyframes scroll-diagonal {
