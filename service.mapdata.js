@@ -330,6 +330,7 @@ app.service('MapDataService', ['$rootScope', function ($rootScope) {
 					case "Outdoorsman" : 
 					case "Dauntless" : hasCostSkill = true; break;
 					case "Pass" : hasPass = true; break;
+					case "All-Terrain" : hasCostSkill = true; hasPass = true; break;
 					case "Water Wings" : hasWaterWings = true; break;
 					case "Staff Savant" : hasStaffSavant = true; break;
 					case "Sword Savant" : hasSwordSavant = true; break;
@@ -400,6 +401,8 @@ app.service('MapDataService', ['$rootScope', function ($rootScope) {
 				weaknesses.push("Reptile");
 			if(char == "Eviscerator")
 				weaknesses.push("Flying");
+			if(char == "Deceiver")
+				weaknesses.push("Insect");
 		}
 
 		var weakObj = {};
