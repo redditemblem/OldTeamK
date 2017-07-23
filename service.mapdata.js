@@ -283,17 +283,22 @@ app.service('MapDataService', ['$rootScope', function ($rootScope) {
 						var horz = parseInt(currObj.position.substring(0, currObj.position.indexOf(",")));
 						var vert = parseInt(currObj.position.substring(currObj.position.indexOf(",")+1, pos.length));
 
-						terrainLocs[(horz-1) + "," + vert].obstruct = true;
-						terrainLocs[(horz-1) + "," + vert].obstructAffl = currObj.affiliation;
-
-						terrainLocs[(horz+1) + "," + vert].obstruct = true;
-						terrainLocs[(horz+1) + "," + vert].obstructAffl = currObj.affiliation;
-
-						terrainLocs[horz + "," + (vert-1)].obstruct = true;
-						terrainLocs[horz + "," + (vert-1)].obstructAffl = currObj.affiliation;
-
-						terrainLocs[horz + "," + (vert+1)].obstruct = true;
-						terrainLocs[horz + "," + (vert+1)].obstructAffl = currObj.affiliation;
+						if(terrainLocs[(horz-1) + "," + vert] != undefined){
+							terrainLocs[(horz-1) + "," + vert].obstruct = true;
+							terrainLocs[(horz-1) + "," + vert].obstructAffl = currObj.affiliation;
+						}
+						if(terrainLocs[(horz+1) + "," + vert] != undefined){
+							terrainLocs[(horz+1) + "," + vert].obstruct = true;
+							terrainLocs[(horz+1) + "," + vert].obstructAffl = currObj.affiliation;
+						}
+						if(terrainLocs[horz + "," + (vert-1)] != undefined){
+							terrainLocs[horz + "," + (vert-1)].obstruct = true;
+							terrainLocs[horz + "," + (vert-1)].obstructAffl = currObj.affiliation;
+						}
+						if(terrainLocs[horz + "," + (vert+1)] != undefined){
+							terrainLocs[horz + "," + (vert+1)].obstruct = true;
+							terrainLocs[horz + "," + (vert+1)].obstructAffl = currObj.affiliation;
+						}
 					}
 				}
 
