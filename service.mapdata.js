@@ -317,6 +317,7 @@ app.service('MapDataService', ['$rootScope', function ($rootScope) {
 			//Determine if character has any skills that affect range
 			var hasCostSkill = false;
 			var hasPass = false;
+			var hasAllTerrain = false;
 			var hasWaterWings = false;
 			var hasStaffSavant = false;
 			var hasSwordSavant = false;
@@ -330,7 +331,7 @@ app.service('MapDataService', ['$rootScope', function ($rootScope) {
 					case "Outdoorsman" : 
 					case "Dauntless" : hasCostSkill = true; break;
 					case "Pass" : hasPass = true; break;
-					case "All-Terrain" : hasCostSkill = true; hasPass = true; break;
+					case "All-Terrain" : hasCostSkill = true; hasPass = true; hasAllTerrain = true; break;
 					case "Water Wings" : hasWaterWings = true; break;
 					case "Staff Savant" : hasStaffSavant = true; break;
 					case "Sword Savant" : hasSwordSavant = true; break;
@@ -368,6 +369,7 @@ app.service('MapDataService', ['$rootScope', function ($rootScope) {
 				'affiliation' : currObj.affiliation,
 				'hasCostSkill' : hasCostSkill,
 				'hasPass' : hasPass,
+				'hasAllTerrain' : hasAllTerrain,
 				'hasWaterWings' : hasWaterWings
 			};
 
@@ -545,7 +547,9 @@ app.service('MapDataService', ['$rootScope', function ($rootScope) {
 
 		//Mov mode calcs
 		if(trace.length > 1 && mode == 0){
-			var classCost = terrainIndex[tile.type][params.terrainClass];
+			var classCost;
+			if(params.hasAllTerrain) classCost = terrainIndex[tile.type].Flier;
+			else classCost = terrainIndex[tile.type][params.terrainClass];
 
 			//Determine traversal cost
 			if( classCost == undefined
