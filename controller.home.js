@@ -385,7 +385,7 @@ app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'MapDataService'
 	}	
 
 	$scope.getStatusIcon = function(status, turnsLeft){
-		if(status == "None") return "";
+		if(status == "None" || status == "Disconcerted" || status == "Enraged" || status == "Emerging") return "";
 		if(status == "Doomed") return "IMG/Status/s_" + status + turnsLeft +".png";
 		else return "IMG/Status/s_" + status + ".png";
 	};
