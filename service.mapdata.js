@@ -556,6 +556,7 @@ app.service('MapDataService', ['$rootScope', function ($rootScope) {
 			   || (classCost == "-" && !(params.hasWaterWings && tile.type.indexOf("Water") != -1))
 			   || tile.insurmountable
 			   || (tile.occupiedAffiliation.length > 0 && tile.occupiedAffiliation != params.affiliation && !params.hasPass && !tile.insurmountable)
+			   || (!params.hasCostSkill && parseFloat(classCost) > range)
 			){
 				if(params.atkRange > 0){ range = params.atkRange; mode = 1; }
 				else if(params.healRange > 0){ range = params.healRange; mode = 2; }
