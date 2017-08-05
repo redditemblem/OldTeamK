@@ -58,7 +58,7 @@ app.controller('AuthCtrl', ['$scope', '$location', '$interval', 'MapDataService'
 	};
 
 	function pickLoadingQuote(){
-		var num = Math.floor((Math.random() * 23) + 1);
+		var num = Math.floor((Math.random() * 24) + 1);
 		switch(num){
 			case 1 : return 'Loading map data...';
 			case 2 : return 'Trying to not crash...';
@@ -81,7 +81,8 @@ app.controller('AuthCtrl', ['$scope', '$location', '$interval', 'MapDataService'
 			case 20 : return 'Duncan will remember this...';
 			case 21 : return 'You went full anime. Never go full anime...';
 			case 22 : return 'Deal with it. - Sirrus, 2017';
-			case 22 : return '#LyleDidNothingWrong';
+			case 23 : return '#LyleDidNothingWrong';
+			case 24 : return '*Masticates Furiously*';
 		}
 	};
     
