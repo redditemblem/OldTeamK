@@ -267,7 +267,7 @@ app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'MapDataService'
     	else if(aff.indexOf("Reaper") != -1 || aff == "Lettie"){
     		return COLOR_PINK;
     	}
-    	else if(aff == "Loveless"){
+    	else if(aff == "Loveless" || aff == "Beloved"){
     		return COLOR_PURPLE;
     	}
     	else if(aff == "Whimsy" || aff == "Cupidity" || aff == "Neutral" || aff == "Prisoner"){
