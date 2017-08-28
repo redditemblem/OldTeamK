@@ -487,7 +487,8 @@ app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'MapDataService'
 		return eqptClass == char.weaponRanks.wpn1.class
 		    || eqptClass == char.weaponRanks.wpn2.class
 			|| eqptClass == char.weaponRanks.wpn3.class
-			|| eqptClass == "None" || eqptClass == "Consumable" || eqptClass == "Equipment" || eqptClass == "Item";
+			|| eqptClass == "None" || eqptClass == "Consumable" || eqptClass == "Equipment" || eqptClass == "Item"
+			|| char.affiliation == "Beloved";
 	};
 
     //***************************\\

@@ -25,6 +25,7 @@
    background-size: 1/16%;
    background-position: 0% 0%;
    opacity: 0.25;
+   pointer-events: none;
    /* Apply animation to this element */
    -moz-animation: scroll-diagonal 20s linear infinite;
    -webkit-animation: scroll-diagonal 20s linear infinite;
