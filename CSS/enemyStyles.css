@@ -153,8 +153,18 @@
 
 .enemyNum{
 	position: absolute;
-	left:0px;
-	top:-3px;
+	right: 0px;
+	bottom: 3px;
+}
+
+.numBottom{
+	bottom: 0px;
+}
+
+.statusIcon{
+	position: absolute;
+	left: 0px;
+	top: -3px;
 }
 
 .enemyTalkBalloon{
@@ -320,8 +330,4 @@
 	height:1px;
 	left:2%;
 	background-color: white;	
-}
-
-.numBottom{
-	top: 0px;
 }

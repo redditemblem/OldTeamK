@@ -59,11 +59,17 @@
 
 	<!--Draw character sprites to map-->
 	<div ng-repeat="(cIndex,char) in charaData">
-		<div id="{{cIndex}}" class="hoverImage charDiv" ng-if="validPosition(char.position)" title="({{char.position}}) {{terrainLocs[char.position].type}}: {{terrainTypes[terrainLocs[char.position].type].avo}}🚶  {{terrainTypes[terrainLocs[char.position].type].def}}⛨" ng-click="displayData(cIndex)" ng-style="{top: determineCharY(char.position), left: determineCharX($index, char.position)}">
-			<div class="charDiv" class="mapCharOffsetNone">
+		<div id="{{cIndex}}"
+			class="hoverImage absolutePos" 
+			ng-if="validPosition(char.position)"
+			title="({{char.position}}) {{terrainLocs[char.position].type}}: {{terrainTypes[terrainLocs[char.position].type].avo}}🚶  {{terrainTypes[terrainLocs[char.position].type].def}}⛨"
+			ng-click="displayData(cIndex)" 
+			ng-style="{top: determineCharY(char.position), left: determineCharX($index, char.position), height: (char.class.name=='Eternal Eye' ? '32px' : '16px'), width: (char.class.name == 'Eternal Eye' ? '32px' : '16px')}"
+		>
+			<div class="absolutePos" ng-style="{height: (char.class.name == 'Eternal Eye' ? '32px' : '16px'), width: (char.class.name == 'Eternal Eye' ? '32px' : '16px')}">
 				<img ng-src="{{char.spriteUrl}}" class="mapCharCentered" ng-class="{'grayscale' : hasMoved(char.moved)}">
 				<img ng-src="{{getEnemyNum(char.name)}}" class="enemyNum" ng-class="{'numBottom' : !validHP(char.currHp, char.maxHp)}">
-				<img ng-src="{{getStatusIcon(char.status.name, char.turnsLeft)}}" class="enemyNum">
+				<img ng-src="{{getStatusIcon(char.status.name, char.turnsLeft)}}" class="statusIcon">
 			</div>
 			<div ng-if="validHP(char.currHp, char.maxHp)">
 				<div class="healthBarBack"></div>
