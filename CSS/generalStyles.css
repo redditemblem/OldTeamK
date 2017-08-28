@@ -14,26 +14,17 @@
 	text-align: left;
 }
 
-.ichor
-{
-   position: absolute;
-   left: 0px;
-   top: 0px;
-   width: 512px;
-   height: 512px;
-}
-
 .fog{
    position: absolute;
    left: 0px;
    top: 0px;
-   background-image: url("../IMG/miasmicIchor.gif");
+   background-image: url("../IMG/fog.png");
    width: 512px;
    height: 512px;
    background-repeat: repeat;
    background-size: 1/16%;
    background-position: 0% 0%;
-   opacity: 1;
+   opacity: 0.25;
    /* Apply animation to this element */
    -moz-animation: scroll-diagonal 20s linear infinite;
    -webkit-animation: scroll-diagonal 20s linear infinite;

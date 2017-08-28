@@ -1,10 +1,8 @@
 <div class="mainBackground"></div>
 <div id="dropArea" class="mapBox">
 
-	<!--<div class="ichor"></div> Remove me!-->
-	<div class="fog"></div>
-
 	<img id="map" class="absolutePos" ng-src="{{mapUrl}}">
+	<div class="fog"></div>
 
 	<!--Draw tile names-->
 	<div ng-repeat="(yIndex,row) in coordinates" class="glowBoxIndent absolutePos" ng-style="{top: determineGlowY(yIndex)}">

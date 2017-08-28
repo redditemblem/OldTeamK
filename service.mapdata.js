@@ -265,6 +265,15 @@ app.service('MapDataService', ['$rootScope', function ($rootScope) {
 				for(var k = 23; k < 28; k++)
 					currObj.inventory["itm"+(k-22)] = fetchItem(c[k]);
 
+				//Add equipped weapon's stats
+				currObj.Str = (parseInt(currObj.Str) | 0) + currObj.inventory.itm1.Str;
+				currObj.Mag = (parseInt(currObj.Mag) | 0) + currObj.inventory.itm1.Mag;
+				currObj.Skl = (parseInt(currObj.Skl) | 0) + currObj.inventory.itm1.Skl;
+				currObj.Spd = (parseInt(currObj.Spd) | 0) + currObj.inventory.itm1.Spd;
+				currObj.Lck = (parseInt(currObj.Lck) | 0) + currObj.inventory.itm1.Lck;
+				currObj.Def = (parseInt(currObj.Def) | 0) + currObj.inventory.itm1.Def;
+				currObj.Res = (parseInt(currObj.Res) | 0) + currObj.inventory.itm1.Res;
+
 				//Set terrain information with character affiliation
 				var hasInsurmountable = false;
 				var hasObstruct = false;
@@ -277,12 +286,19 @@ app.service('MapDataService', ['$rootScope', function ($rootScope) {
 
 				if(currObj.position.indexOf(",") != -1 && currObj.position != "-1,-1"){
 					terrainLocs[currObj.position].occupiedAffiliation = currObj.affiliation;
+
+					var horz = parseInt(currObj.position.substring(0, currObj.position.indexOf(",")));
+					var vert = parseInt(currObj.position.substring(currObj.position.indexOf(",")+1, pos.length));
+
+					if(currObj.class.name == "Eternal Eye"){
+						terrainLocs[currObj.position].occupiedAffiliation = "Environment";
+						terrainLocs[(horz+1) + "," + vert].occupiedAffiliation = "Environment";
+						terrainLocs[horz + "," + (vert+1)].occupiedAffiliation = "Environment";
+						terrainLocs[(horz+1) + "," + (vert+1)].occupiedAffiliation = "Environment";
+					}
+
 					if(hasInsurmountable) terrainLocs[currObj.position].insurmountable = true;
-
 					if(hasObstruct){
-						var horz = parseInt(currObj.position.substring(0, currObj.position.indexOf(",")));
-						var vert = parseInt(currObj.position.substring(currObj.position.indexOf(",")+1, pos.length));
-
 						if(terrainLocs[(horz-1) + "," + vert] != undefined){
 							terrainLocs[(horz-1) + "," + vert].obstruct = true;
 							terrainLocs[(horz-1) + "," + vert].obstructAffl = currObj.affiliation;
@@ -370,7 +386,8 @@ app.service('MapDataService', ['$rootScope', function ($rootScope) {
 				'hasCostSkill' : hasCostSkill,
 				'hasPass' : hasPass,
 				'hasAllTerrain' : hasAllTerrain,
-				'hasWaterWings' : hasWaterWings
+				'hasWaterWings' : hasWaterWings,
+				'class' : currObj.class.name
 			};
 
 			var ranges = calculateCharacterRange(currObj.position, currObj.Mov, params);
@@ -457,6 +474,13 @@ app.service('MapDataService', ['$rootScope', function ($rootScope) {
 			'desc' : i[10],
 			'notes' : i[11],
 			'effect' : i[12] != undefined ? i[12] : "-1",
+			'Str' : parseInt(i[13]) | 0,
+			'Mag' : parseInt(i[14]) | 0,
+			'Skl' : parseInt(i[15]) | 0,
+			'Spd' : parseInt(i[16]) | 0,
+			'Lck' : parseInt(i[17]) | 0,
+			'Def' : parseInt(i[18]) | 0,
+			'Res' : parseInt(i[19]) | 0,
 			'altIcon' : i[21] != undefined ? i[21] : ""
 		};
 	};
@@ -523,7 +547,7 @@ app.service('MapDataService', ['$rootScope', function ($rootScope) {
 	//\\//\\//\\//\\//\\//
 
 	function calculateCharacterRange(pos, range, params){
-		if(pos.indexOf(",") == -1 || pos == "-1,-1")
+		if(pos.indexOf(",") == -1 || pos == "-1,-1" || params.class == "Eternal Eye")
 			return { 'movRange' : [], 'atkRange' : [], 'healRange' : [] }; //if not placed on the map, don't calculate
 
 		var horz = parseInt(pos.substring(0, pos.indexOf(",")));
