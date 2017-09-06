@@ -203,7 +203,7 @@ app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'MapDataService'
 	$scope.determineHPWidth = function(charClass, currHp, maxHp){
 		currHp = parseInt(currHp) | 0;
 		maxHp = parseInt(maxHp) | 0;
-		
+
 		var size = charClass == "Eternal Eye" ? 28 : 12;
 		return ((currHp/maxHp)*size)+'px';
     };
@@ -393,7 +393,7 @@ app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'MapDataService'
 	}	
 
 	$scope.getStatusIcon = function(status, turnsLeft){
-		if(status == "None" || status == "Disconcerted" || status == "Enraged" || status == "Emerging") return "";
+		if(status == "None" || status == "Disconcerted" || status == "Enraged" || status == "Emerging" || status == "Resolved") return "";
 		if(status == "Doomed") return "IMG/Status/s_" + status + turnsLeft +".png";
 		else return "IMG/Status/s_" + status + ".png";
 	};
