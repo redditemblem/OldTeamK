@@ -73,7 +73,7 @@
 			</div>
 			<div ng-if="validHP(char.currHp, char.maxHp)">
 				<div class="healthBarBack"></div>
-				<div class="healthBarFront" ng-style="{width:(1+(char.currHp/char.maxHp)*12)+'px','background-color': determineHPColor(char.currHp, char.maxHp)}"></div>
+				<div class="healthBarFront" ng-style="{width: determineHPWidth(char.class, char.currHp, char.maxHp),'background-color': determineHPColor(char.currHp, char.maxHp)}"></div>
 				<div class="healthBarBorder"></div>
 			</div>
 			<div id="{{cIndex}}_pairIcon" class="pairUpIcon" ng-class="{'numBottom' : !validHP(char.currHp, char.maxHp)}" style="display:none">

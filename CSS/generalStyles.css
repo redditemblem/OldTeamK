@@ -146,10 +146,10 @@ img{
 
 .healthBarBack{
 	position: absolute;
-	width: 15px;
+	width: calc(100% - 2px);
 	height: 2px;
-	left: 0px;
-	top: 13px;
+	left: 1px;
+	bottom: 1px;
 	background-color: dimgray;
 }
 
@@ -157,16 +157,16 @@ img{
 	position: absolute;
 	height: 2px;
 	left: 1px;
-	top: 13px;
+	bottom: 1px;
 	background-color: #00ff00;
 }
 
 .healthBarBorder{
 	position: absolute;
-	width: 14px;
+	width: calc(100% - 2px);
 	height: 1px;
 	left: 0px;
-	top: 13px;
+	bottom: 0px;
 	border: 1px solid black;
 }
 

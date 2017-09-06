@@ -198,6 +198,14 @@ app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'MapDataService'
     	pos = pos.substring(comma+1,pos.length); //grab last 1-2 chars
     	pos = parseInt(pos);
     	return ((pos*16))-16 + "px";
+	};
+	
+	$scope.determineHPWidth = function(charClass, currHp, maxHp){
+		currHp = parseInt(currHp) | 0;
+		maxHp = parseInt(maxHp) | 0;
+		
+		var size = charClass == "Eternal Eye" ? 28 : 12;
+		return ((currHp/maxHp)*size)+'px';
     };
 
 	$scope.determineHPColor = function(curr, max){
