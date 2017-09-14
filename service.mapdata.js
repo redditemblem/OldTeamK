@@ -408,9 +408,9 @@ app.service('MapDataService', ['$rootScope', function ($rootScope) {
 
 		var weaknesses = c[3].split(",");
 		if(affl != undefined && char != undefined){
-			if(affl.indexOf("Reaper") != -1 || char == "Fallacy" || char == "Dolour")
+			if(affl.indexOf("Reaper") != -1 || char == "Fallacy" || char == "Dolour" || char == "Damian" || char == "Charry" || char == "Chitin" || char == "Chronology")
 				weaknesses.push("Reaper");
-			if(affl == "Loveless")
+			if(affl == "Loveless"|| char == "The Gentleman")
 				weaknesses.push("Loveless");
 			if(affl == "Lettie")
 				weaknesses.push("Cloud");

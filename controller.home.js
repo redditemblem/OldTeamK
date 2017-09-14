@@ -263,11 +263,14 @@ app.controller('HomeCtrl', ['$scope', '$location', '$interval', 'MapDataService'
     
 	//Set background color for info box based on affliation
 	$scope.determineInfoColor = function(aff){
-    	if(aff == "Immolan Guard" || aff == "Gershom" || aff == "Guile" || aff.indexOf("Community") != -1){
+    	if(aff == "Immolan Guard" || aff == "Gershom" || aff == "Guile"){
     		return COLOR_RED;
     	}
     	else if(aff == "Environment"){
     		return COLOR_WHITE;
+		}
+		else if(aff == "Community"){
+    		return COLOR_BLUE;
     	}
     	else if(aff == "Belenus" || aff == "Self"){
     		return COLOR_ORANGE;
